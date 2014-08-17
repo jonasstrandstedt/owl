@@ -22,42 +22,17 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         #
 #########################################################################################
 
-cmake_minimum_required(VERSION 2.8)
-project(owl)
+cmake_minimum_required(VERSION 2.8.0)
+project(Lua)
 
-############################################
-# Settings
-############################################
-if(NOT OWL_ROOT_DIR)
-    set(OWL_ROOT_DIR ${PROJECT_SOURCE_DIR})
-endif(NOT OWL_ROOT_DIR)
-set(OWL_EXT_DIR "${OWL_ROOT_DIR}/ext")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${OWL_EXT_DIR})
+if (NOT LUA_ROOT_DIR)
+    set(LUA_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+endif ()
 
-############################################
-# Dependencies
-############################################
+file(GLOB LUA_SOURCE ${LUA_ROOT_DIR}/src/*.c ${LUA_ROOT_DIR}/src/*.cpp)
+file(GLOB LUA_HEADER ${LUA_ROOT_DIR}/include/*.h ${LUA_ROOT_DIR}/include/*.hpp)
 
-# Threads
-find_package(Threads REQUIRED)
-set(OWL_DEPENDENCIES ${OWL_DEPENDENCIES} ${CMAKE_THREAD_LIBS_INIT})
+add_library(Lua STATIC ${LUA_SOURCE})
 
-# Lua
-find_package(Lua REQUIRED)
-set(OWL_DEPENDENCIES ${OWL_DEPENDENCIES} ${LUA_LIBRARIES})
-set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${LUA_INCLUDE_DIR})
-
-############################################
-# owl source
-############################################
-add_subdirectory(${OWL_ROOT_DIR}/src)
-
-
-############################################
-# demo app
-############################################
-add_executable(owl_demo ${OWL_ROOT_DIR}/demo/demo.cpp)
-add_definitions(-std=c++11)
-
-include_directories(${OWL_INCLUDE_DIRS})
-target_link_libraries(owl_demo owl )
+set (LUA_INCLUDE_DIR "${LUA_ROOT_DIR}/include")
+include_directories("${LUA_INCLUDE_DIR}")

@@ -35,7 +35,11 @@
 #include <owl/data/threadsafemap.hpp>
 #include <owl/time/timer.h>
 
+#include <owl/lua/lua.h>
+
 #include <limits>
+
+#define relative "../.."
 
 namespace {
     std::string _loggerCat = "Demo";
@@ -76,24 +80,24 @@ int main(int argc, char** argv) {
     owl::LogManager::initialize();
     owl::LogManager::ref().addLogger(new owl::StreamLog(std::cout));
     
-    owl::ThreadSafeVector<int> _ints;
+    std::string source = R"(
+function luafunc(a)
+    owl_LDEBUGC("ScriptPrint", a)
+    return "val1", 2.01
+end
+owl_LDEBUG("Print from Lua script")
+
+)";
     
-    owl::Timer tt;
-    _ints.push_back(1);
-    _ints.push_back(3);
-    _ints.push_back(2);
-    _ints.insert(_ints.begin(), -1);
-    LDEBUG("elapsed: " << tt.elapsed());
+    owl::Lua lua;
+    std::string buffer;
+    double d;
     
-    for(auto i: _ints) {
-        LDEBUG("i: " << i);
-    }
+    lua.loadString(source);
+    lua.call("luafunc", "s>sd", "Hello", &buffer,&d);
     
-    std::sort(_ints.begin(), _ints.end());
-    
-    for(auto i: _ints) {
-        LDEBUG("i: " << i);
-    }
+    LDEBUG("return1: " << buffer);
+    LDEBUG("return2: " << d);
     
     if(argc == 1) {
         owl::TCPServer server(o, c, r);

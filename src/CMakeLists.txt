@@ -28,6 +28,8 @@
 set(SOURCE_ROOT_DIR ${OWL_ROOT_DIR}/src)
 set(HEADER_ROOT_DIR ${OWL_ROOT_DIR}/include)
 
+set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${HEADER_ROOT_DIR})
+
 ############################################
 # Macros
 ############################################
@@ -59,12 +61,15 @@ add_group("DesignPattern" "designpattern")
 # Patterns
 add_group("Network" "network")
 
+# Patterns
+add_group("Lua" "lua")
+
 ############################################
 # Library
 ############################################
 add_library(owl ${OWL_SOURCE} ${OWL_HEADER})
-include_directories(${HEADER_ROOT_DIR})
-target_link_libraries(owl ${OWL_ENGINE_DEPENDENCIES} ssl crypto)
+include_directories(${OWL_INCLUDE_DIRS})
+target_link_libraries(owl ${OWL_DEPENDENCIES} ssl crypto)
 add_definitions(-std=c++11)
 
 # ssl
@@ -78,7 +83,7 @@ add_definitions(-lcrypto)
 # set(OWL_INCLUDE_DIR ${HEADER_ROOT_DIR})
 
 set(OWL_LIBRARIES owl PARENT_SCOPE)
-set(OWL_INCLUDE_DIR ${HEADER_ROOT_DIR} PARENT_SCOPE)
+set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} PARENT_SCOPE)
 # set(OWL_LIBRARIES ${OWL_LIBRARIES} PARENT_SCOPE)
 # set(OWL_INCLUDE_DIR ${OWL_INCLUDE_DIR} PARENT_SCOPE)
 
