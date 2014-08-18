@@ -43,14 +43,13 @@ public:
     Filesystem();
     ~Filesystem();
     
-    void registerToken(const std::string& token, const std::string& path);
+    bool registerToken(const std::string& token, const std::string& path);
     bool tokenRegistered(const std::string& token) const;
     std::string absolutePath(const std::string& path);
     
     std::string workingDirectory() const;
     std::vector<std::string> listFiles(const std::string& path) const;
     std::vector<std::string> listDirectories(const std::string& path) const;
-    
     
     bool fileExists(const std::string& path) const;
     bool directoryExists(const std::string& path) const;

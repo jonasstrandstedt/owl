@@ -34,6 +34,7 @@ namespace {
     const std::string _loggerCat = "Filesystem";
     const std::string TokenOpen = "${";
     const std::string TokenClose = "}";
+    const std::string Separator = "/";
 }
 
 namespace owl {
@@ -46,11 +47,24 @@ Filesystem::~Filesystem() {
     
 }
 
-void Filesystem::registerToken(const std::string& token, const std::string& path) {
+bool Filesystem::registerToken(const std::string& token, const std::string& path) {
+    // check length
+    if(token.length() < TokenOpen.length() + TokenClose.length() + 1)
+        return false;
+    
+    // check beginning
+    if(token.substr(0, TokenOpen.length()) != TokenOpen)
+        return false;
+    
+    // check end
+    if(token.substr(token.length()-TokenClose.length(), TokenClose.length()) != TokenClose)
+        return false;
+    
     _tokens[token] = path;
 #ifdef OWL_FILESYSTEM_CACHE
     _cache.clear();
 #endif
+    return true;
 }
     
 bool Filesystem::tokenRegistered(const std::string& token) const {
@@ -102,12 +116,12 @@ bool Filesystem::findFile(const std::string& file, std::string& directory) {
     
     std::string currentDirectory = workingDirectory();
     do {
-        auto f = currentDirectory + "/" +file;
+        auto f = currentDirectory + Separator + file;
         if(fileExists(f)) {
             directory = currentDirectory;
             return true;
         }
-        currentDirectory = currentDirectory.substr(0,currentDirectory.find_last_of("/"));
+        currentDirectory = currentDirectory.substr(0,currentDirectory.find_last_of(Separator));
     } while(currentDirectory.size() > 1);
 
     return false;

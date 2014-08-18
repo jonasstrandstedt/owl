@@ -26,6 +26,7 @@
 
 
 #include <cmath>
+#include <owl/filesystem/filesystem.h>
 
 namespace {
     
@@ -83,6 +84,55 @@ namespace {
         LERRORC(cat,msg);
         return 0;
     }
+    
+    static int owl_absPath (lua_State* L) {
+        const char* path = luaL_checkstring(L, 1);
+        std::string abspath = absPath(path);
+        lua_pushstring(L, abspath.c_str());
+        return 1;
+    }
+    
+    static int owl_absolutePath (lua_State* L) {
+        const char* path = luaL_checkstring(L, 1);
+        std::string abspath = FileSys.absolutePath(path);
+        lua_pushstring(L, abspath.c_str());
+        return 1;
+    }
+    
+    static int owl_registerToken (lua_State* L) {
+        const char* token = luaL_checkstring(L, 1);
+        const char* path = luaL_checkstring(L, 2);
+        bool success = FileSys.registerToken(token, path);
+        lua_pushboolean(L, success);
+        return 1;
+    }
+    
+    static int owl_tokenRegistered (lua_State* L) {
+        const char* token = luaL_checkstring(L, 1);
+        bool success = FileSys.tokenRegistered(token);
+        lua_pushboolean(L, success);
+        return 1;
+    }
+    
+    static int owl_workingDirectory (lua_State* L) {
+        std::string wd = FileSys.workingDirectory();
+        lua_pushstring(L, wd.c_str());
+        return 1;
+    }
+    
+    static int owl_fileExists (lua_State* L) {
+        const char* file = luaL_checkstring(L, 1);
+        bool success = FileSys.fileExists(file);
+        lua_pushboolean(L, success);
+        return 1;
+    }
+    
+    static int owl_directoryExists (lua_State* L) {
+        const char* dir = luaL_checkstring(L, 1);
+        bool success = FileSys.fileExists(dir);
+        lua_pushboolean(L, success);
+        return 1;
+    }
 }
 
 namespace owl {
@@ -95,6 +145,7 @@ Lua::Lua() {
     
     LINFOF("Opened Lua state: %s.%s.%s", LUA_VERSION_MAJOR, LUA_VERSION_MINOR, LUA_VERSION_RELEASE);
     
+    pushOwlObject();
     pushOwlFunctions();
 }
 
@@ -103,7 +154,6 @@ Lua::~Lua() {
 }
 
 void Lua::pushFunction(const std::string& name, lua_CFunction f) {
-    
     lua_pushcfunction(_state, f);
     lua_setglobal(_state, name.c_str());
 }
@@ -140,7 +190,7 @@ void Lua::loadString(const std::string& source) {
 }
 
 // Originally from: http://www.lua.org/pil/25.3.html
-void Lua::call(const std::string& func, const std::string sig, ...) {
+bool Lua::call(const std::string& func, const std::string sig, ...) {
     va_list vl;
     int narg, nres;  // number of arguments and results
     
@@ -170,7 +220,7 @@ void Lua::call(const std::string& func, const std::string sig, ...) {
                 foundBreak = true;
                 break;
             default:
-                LERRORF("invalid option (%c)", sig.at(i));
+                LERRORF("invalid option (%c), option ignored", sig.at(i));
         }
         ++narg;
         luaL_checkstack(_state, 1, "too many arguments");
@@ -181,7 +231,7 @@ void Lua::call(const std::string& func, const std::string sig, ...) {
     if (lua_pcall(_state, narg, nres, 0) != 0) {  // do the call
         LERRORF("error running function `%s': %s", func.c_str(), lua_tostring(_state, -1));
         va_end(vl);
-        return;
+        return false;
     }
     
     // retrieve results
@@ -225,24 +275,56 @@ void Lua::call(const std::string& func, const std::string sig, ...) {
                 break;
                 
             default:
-                LERRORF("invalid option (%c)", sig.at(i));
+                LERRORF("invalid option (%c), option ignored", sig.at(i));
         }
         nres++;
     }
     va_end(vl);
+    return true;
 }
+    
+void Lua::pushOwlObject() {
+    const std::string s = R"(
+    owl = {}
+    owl.__index = owl
+    owl.FileSys = {}
 
+    )";
+    loadString(s);
+}
 void Lua::pushOwlFunctions() {
     
     // Register the owl logging functions
-    pushFunction("owl_LDEBUG", owl_LDEBUG);
-    pushFunction("owl_LDEBUGC", owl_LDEBUGC);
-    pushFunction("owl_LINFO", owl_LINFO);
-    pushFunction("owl_LINFOC", owl_LINFOC);
-    pushFunction("owl_LWARNING", owl_LWARNING);
-    pushFunction("owl_LWARNINGC", owl_LWARNINGC);
-    pushFunction("owl_LERROR", owl_LERROR);
-    pushFunction("owl_LERRORC", owl_LERRORC);
+    pushOwlFunction("owl_LDEBUG", owl_LDEBUG);
+    pushOwlFunction("owl_LDEBUGC", owl_LDEBUGC);
+    pushOwlFunction("owl_LINFO", owl_LINFO);
+    pushOwlFunction("owl_LINFOC", owl_LINFOC);
+    pushOwlFunction("owl_LWARNING", owl_LWARNING);
+    pushOwlFunction("owl_LWARNINGC", owl_LWARNINGC);
+    pushOwlFunction("owl_LERROR", owl_LERROR);
+    pushOwlFunction("owl_LERRORC", owl_LERRORC);
+    
+    // Register Filesystem functions
+    pushFunction("absPath", owl_absPath);
+    pushOwlFunction("owl_absolutePath", owl_absolutePath, "FileSys.");
+    pushOwlFunction("owl_registerToken", owl_registerToken, "FileSys.");
+    pushOwlFunction("owl_tokenRegistered", owl_tokenRegistered, "FileSys.");
+    pushOwlFunction("owl_workingDirectory", owl_workingDirectory, "FileSys.");
+    pushOwlFunction("owl_fileExists", owl_fileExists, "FileSys.");
+    pushOwlFunction("owl_directoryExists", owl_directoryExists, "FileSys.");
+}
+
+void Lua::pushOwlFunction(const std::string& name, lua_CFunction f, const std::string& group) {
+    
+    const std::string s = "\n\
+    function owl." + group + name.substr(4, name.length()-4) +"(...) \n\
+        return " + name + "(...)\n\
+    end";
+    // LDEBUG(s);
+    
+    pushFunction(name, f);
+    loadString(s);
+    
 }
 
 }

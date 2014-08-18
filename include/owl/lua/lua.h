@@ -45,10 +45,12 @@ public:
     void pushFunction(const std::string& name, lua_CFunction f);
     void loadFile(const std::string& filename);
     void loadString(const std::string& source);
-    void call(const std::string& func, const std::string sig = "", ...);
+    bool call(const std::string& func, const std::string sig = "", ...);
     
 private:
+    void pushOwlObject();
     void pushOwlFunctions();
+    void pushOwlFunction(const std::string& name, lua_CFunction f, const std::string& group = "");
 
     lua_State* _state;
 };
