@@ -22,6 +22,7 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
+#include <owl/filesystem/filesystem.h>
 #include <owl/logging/logmanager.h>
 #include <owl/logging/streamlog.h>
 
@@ -38,6 +39,7 @@
 #include <owl/lua/lua.h>
 
 #include <limits>
+
 
 #define relative "../.."
 
@@ -74,7 +76,48 @@ owl::ReadCallback_t r = [](owl::TCPSocketConnection* connection, int length, con
 };
 
 int main(int argc, char** argv) {
+    owl::LogManager::initialize();
+    owl::LogManager::ref().addLogger(new owl::StreamLog(std::cout));
 
+    
+    owl::Filesystem::initialize();
+    
+    auto files = FileSys.listFiles(relative);
+    for(auto file: files) {
+        file = std::string(relative) +"/" + file;
+        if(FileSys.fileExists(file))
+            LDEBUG("FIL YES: " << file);
+        if(FileSys.directoryExists(file))
+            LDEBUG("DIR YES: " << file);
+    }
+    
+    LDEBUG("working dir: " << FileSys.workingDirectory());
+    LDEBUG("${BASE_PATH}:" << FileSys.tokenRegistered("${BASE_PATH}"));
+    
+    std::string dir = "";
+    if(FileSys.findFile("CMakeLists.txt", dir)) {
+        
+        LDEBUG("found in dir: " << dir);
+        FileSys.registerToken("${BASE_PATH}", dir);
+    } else {
+        FileSys.registerToken("${BASE_PATH}", FileSys.workingDirectory());
+    }
+    
+    LDEBUG("${BASE_PATH}:" << FileSys.tokenRegistered("${BASE_PATH}"));
+    
+    
+    FileSys.registerToken("${TMP}", "${BASE_PATH}/build");
+    
+    owl::Timer t;
+    const int iterations = 100;
+    for(int i = 0; i < 100000; ++i) {
+        absPath("${TMP}/hej.txt");
+    }
+    LDEBUG(100 << ": " << t.elapsed());
+    LDEBUG("path: " << FileSys.absolutePath("${TMP}/hej.txt"));
+
+
+/*
     int port = 22222;
 
     owl::LogManager::initialize();
@@ -138,6 +181,7 @@ owl_LDEBUG("Print from Lua script")
     
     LDEBUG("Done!");
     owl::LogManager::deinitialize();
+    */
     return 0;
 }
 

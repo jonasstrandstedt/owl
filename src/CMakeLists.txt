@@ -64,6 +64,9 @@ add_group("Network" "network")
 # Patterns
 add_group("Lua" "lua")
 
+# Patterns
+add_group("Filesystem" "filesystem")
+
 ############################################
 # Library
 ############################################
