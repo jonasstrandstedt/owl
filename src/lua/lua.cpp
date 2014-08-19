@@ -129,7 +129,7 @@ namespace {
     
     static int owl_directoryExists (lua_State* L) {
         const char* dir = luaL_checkstring(L, 1);
-        bool success = FileSys.fileExists(dir);
+        bool success = FileSys.directoryExists(dir);
         lua_pushboolean(L, success);
         return 1;
     }
