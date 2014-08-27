@@ -29,6 +29,7 @@
 
 #include <map>
 #include <string>
+#include <functional>
 
 namespace owl {
 
@@ -72,6 +73,14 @@ public:
         }
         return _map.at(k).as<Dictionary>().get(_rest(key, sep), value);
     };
+    
+    template<class T>
+    T getValidate(const std::string& key, std::function<void(T&)> f = [](T& value) {}) const {
+        T value{};
+        get(key, value);
+        f(value);
+        return value;
+    }
 
 private:
 
