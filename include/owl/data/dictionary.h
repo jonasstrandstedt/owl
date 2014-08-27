@@ -42,8 +42,19 @@ class Dictionary {
 
 public:
     
+    typedef std::map<std::string, owl::Any>::iterator iterator;
+    typedef std::map<std::string, owl::Any>::const_iterator const_iterator;
+    
     Dictionary();
     Dictionary(const Dictionary& rhs);
+    
+    iterator begin() noexcept;
+    const_iterator begin() const noexcept;
+    
+    iterator end() noexcept;
+    const_iterator end() const noexcept;
+    
+    std::vector<std::string> keys() const;
 
     bool insert(const std::string& key, Any value);
     bool insert(const std::string& key, const char* value);

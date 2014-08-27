@@ -25,6 +25,7 @@
 #include <owl/data/typeinfo.h>
 
 #include <sstream>
+#include <owl/data/any.h>
 
 #define TYPEINFO_NAME_IMPLEMENTATION(class_name) \
     template<>std::string TypeInfo::name<class_name>() { \
@@ -87,69 +88,6 @@
     template<>std::string TypeInfo::name<const std::vector<const class_name*>*>() { \
         return "const std::vector<const "#class_name"*>*";\
     } \
-    
-
-#define TYPEINFO_OWL_NAME_IMPLEMENTATION(class_name) \
-    template<>std::string TypeInfo::name<class_name>() { \
-        return "owl::"#class_name; \
-    } \
-    template<>std::string TypeInfo::name<class_name*>() { \
-        return "owl::"#class_name"*"; \
-    } \
-    template<>std::string TypeInfo::name<const class_name>() { \
-        return "const owl::"#class_name; \
-    } \
-    template<>std::string TypeInfo::name<const class_name*>() { \
-        return "const owl::"#class_name"*"; \
-    } \
-    template<>std::string TypeInfo::name<std::vector<class_name> >() { \
-        return "std::vector<owl::"#class_name">";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<class_name*> >() { \
-        return "std::vector<owl::"#class_name"*>";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<class_name>*>() { \
-        return "std::vector<owl::"#class_name">*";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<class_name*>*>() { \
-        return "std::vector<owl::"#class_name"*>*";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<const class_name> >() { \
-        return "std::vector<const owl::"#class_name">";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<const class_name*> >() { \
-        return "std::vector<const owl::"#class_name"*>";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<const class_name>*>() { \
-        return "std::vector<const owl::"#class_name">*";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<const class_name*>*>() { \
-        return "std::vector<const owl::"#class_name"*>*";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<class_name> >() { \
-        return "const std::vector<owl::"#class_name">";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<class_name*> >() { \
-        return "const std::vector<owl::"#class_name"*>";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<class_name>*>() { \
-        return "const std::vector<owl::"#class_name">*";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<class_name*>*>() { \
-        return "const std::vector<owl::"#class_name"*>*";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<const class_name> >() { \
-        return "const std::vector<const owl::"#class_name">";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<const class_name*> >() { \
-        return "const std::vector<const owl::"#class_name"*>";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<const class_name>*>() { \
-        return "const std::vector<const owl::"#class_name">*";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<const class_name*>*>() { \
-        return "const std::vector<const owl::"#class_name"*>*";\
-    } \
 
 
 namespace owl {
@@ -174,20 +112,31 @@ TYPEINFO_NAME_IMPLEMENTATION(signed char)
 TYPEINFO_NAME_IMPLEMENTATION(std::string)
 
 // owl classes
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Log)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(LogManager)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(StreamLog)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Time)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Timer)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Any)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Dictionary)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Socket)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(TCPClient)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(TCPServer)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(TCPSocket)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(TCPSocketConnection)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Websocket)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Lua)
-TYPEINFO_OWL_NAME_IMPLEMENTATION(Filesystem)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Log)
+TYPEINFO_NAME_IMPLEMENTATION(owl::LogManager)
+TYPEINFO_NAME_IMPLEMENTATION(owl::StreamLog)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Time)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Timer)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Any)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Dictionary)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Socket)
+TYPEINFO_NAME_IMPLEMENTATION(owl::TCPClient)
+TYPEINFO_NAME_IMPLEMENTATION(owl::TCPServer)
+TYPEINFO_NAME_IMPLEMENTATION(owl::TCPSocket)
+TYPEINFO_NAME_IMPLEMENTATION(owl::TCPSocketConnection)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Websocket)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Lua)
+TYPEINFO_NAME_IMPLEMENTATION(owl::Filesystem)
+
+// specials
+template<>std::string TypeInfo::name<Any>(const Any& val) {
+    return "owl::Any<" + val.typeName()+ ">";
+}
+template<>std::string TypeInfo::name<std::pair<const std::string, Any> >() {
+    return "std::pair<std::string, owl::Any>";
+}
+template<>std::string TypeInfo::name<std::pair<const std::string, Any> >(const std::pair<const std::string, Any>& val) {
+    return "std::pair<std::string, " + TypeInfo::name(val.second) + ">";
+}
 
 }

@@ -33,6 +33,30 @@ namespace owl {
 Dictionary::Dictionary() {}
 Dictionary::Dictionary(const Dictionary& rhs): _map(rhs._map.begin(),rhs._map.end()) {}
 
+Dictionary::iterator Dictionary::begin() noexcept {
+    return _map.begin();
+}
+
+Dictionary::const_iterator Dictionary::begin() const noexcept {
+    return _map.begin();
+}
+
+Dictionary::iterator Dictionary::end() noexcept {
+    return _map.end();
+}
+
+Dictionary::const_iterator Dictionary::end() const noexcept {
+    return _map.end();
+}
+
+std::vector<std::string> Dictionary::keys() const {
+    std::vector<std::string> keys;
+    for(auto m: _map) {
+        keys.push_back(m.first);
+    }
+    return keys;
+}
+
 bool Dictionary::insert(const std::string& key, Any value){
     
     size_t sep = key.find_first_of(Separator);

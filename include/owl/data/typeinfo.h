@@ -56,6 +56,12 @@ public:
         return std::string(typeid(T).name());
     }
     
+    // unknown type
+    template<class T>
+    static std::string name(const T& val) {
+        return name<T>();
+    }
+    
 }; // TypeInfo
 
 #define TYPEINFO_NAME_DECLARATION(class_name) \
@@ -117,6 +123,12 @@ TYPEINFO_NAME_DECLARATION(TCPSocketConnection)
 TYPEINFO_NAME_DECLARATION(Websocket)
 TYPEINFO_NAME_DECLARATION(Lua)
 TYPEINFO_NAME_DECLARATION(Filesystem)
+
+// Specials
+template<>std::string TypeInfo::name<Any>(const Any& val);
+template<>std::string TypeInfo::name<std::pair<const std::string, Any> >();
+template<>std::string TypeInfo::name<std::pair<const std::string, Any> >(const std::pair<const std::string, Any>& val);
+
 }  // owl
 
 #endif

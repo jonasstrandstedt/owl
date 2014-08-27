@@ -100,15 +100,15 @@ public:
         return true;
     }
     
-    std::string typeName();
-    size_t typeHashCode();
+    std::string typeName() const;
+    size_t typeHashCode() const;
     
 private:
     struct Base {
         virtual ~Base() {}
         virtual Base* clone() const = 0;
-        virtual std::string name() = 0;
-        virtual size_t hash_code() = 0;
+        virtual std::string name() const = 0;
+        virtual size_t hash_code() const = 0;
     };
     
     template<typename T>
@@ -118,8 +118,8 @@ private:
         T value;
         
         Base* clone() const { return new Derived<T>(value); }
-        std::string name() { return TypeInfo::name<T>(); };
-        size_t hash_code() { return typeid(T).hash_code(); };
+        std::string name() const { return TypeInfo::name<T>(); };
+        size_t hash_code() const { return typeid(T).hash_code(); };
     };
     
     Base* clone() const;
