@@ -25,6 +25,8 @@
 #ifndef __ANY_H__
 #define __ANY_H__
 
+#include <owl/data/typeinfo.h>
+
 #include <type_traits>
 #include <utility>
 #include <typeinfo>
@@ -69,7 +71,7 @@ public:
     }
     
     template<class U>
-    StorageType<U>& as() {
+    StorageType<U>& as() const {
         typedef StorageType<U> T;
         
         auto derived = dynamic_cast<Derived<T>*> (ptr);
@@ -98,10 +100,15 @@ public:
         return true;
     }
     
+    std::string typeName();
+    size_t typeHashCode();
+    
 private:
     struct Base {
         virtual ~Base() {}
         virtual Base* clone() const = 0;
+        virtual std::string name() = 0;
+        virtual size_t hash_code() = 0;
     };
     
     template<typename T>
@@ -111,6 +118,8 @@ private:
         T value;
         
         Base* clone() const { return new Derived<T>(value); }
+        std::string name() { return TypeInfo::name<T>(); };
+        size_t hash_code() { return typeid(T).hash_code(); };
     };
     
     Base* clone() const;

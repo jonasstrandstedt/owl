@@ -75,5 +75,17 @@ Any::Base* Any::clone() const {
     else
         return nullptr;
 }
+
+std::string Any::typeName() {
+    if(ptr)
+        return ptr->name();
+    return "nullptr";
+}
+
+size_t Any::typeHashCode() {
+    if(ptr)
+        return ptr->hash_code();
+    return 0;
+}
     
 }

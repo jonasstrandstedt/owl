@@ -22,4 +22,65 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
- // TODO
+
+#include <owl/data/any.h>
+#include <owl/data/typeinfo.h>
+#include <owl/logging/logmanager.h>
+
+#include <map>
+#include <string>
+
+namespace owl {
+
+class Dictionary {
+    
+    const std::string Separator = ".";
+    const size_t SeparatorLength = Separator.length();
+
+public:
+    
+    Dictionary();
+    Dictionary(const Dictionary& rhs);
+
+    bool insert(const std::string& key, Any value);
+    bool insert(const std::string& key, const char* value);
+    
+    template<class T>
+    bool get(const std::string& key, T& value) const {
+        size_t sep = key.find_first_of(Separator);
+        std::string k = key.substr(0, sep);
+        
+        // do I have this key?
+        if(_map.count(k)==0) {
+            return false;
+        }
+        
+        // is this a single key?
+        if(sep == std::string::npos) {
+            Any a = _map.at(k);
+            if(a.is<T>()) {
+                value = a.as<T>();
+                return true;
+            }
+            LWARNINGC("Dictionary","Wrong type, expected '" << TypeInfo::name<T>() << "', got '" << a.typeName() << "'");
+            return false;
+        }
+        
+        // Expecting a dictionary
+        if( ! _map.at(k).is<Dictionary>()) {
+            return false;
+        }
+        return _map.at(k).as<Dictionary>().get(_rest(key, sep), value);
+    };
+
+private:
+
+    // Helper functions
+    std::string _rest(const std::string& key, size_t separator) const;
+
+    // Member variables
+    std::map<std::string, owl::Any> _map;
+
+};
+
+}

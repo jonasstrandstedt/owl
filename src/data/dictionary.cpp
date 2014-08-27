@@ -22,4 +22,44 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-  // TODO
+#include <owl/data/dictionary.h>
+
+namespace {
+    const std::string _loggerCat = "Dictionary";
+}
+
+namespace owl {
+
+Dictionary::Dictionary() {}
+Dictionary::Dictionary(const Dictionary& rhs): _map(rhs._map.begin(),rhs._map.end()) {}
+
+bool Dictionary::insert(const std::string& key, Any value){
+    
+    size_t sep = key.find_first_of(Separator);
+    std::string k = key.substr(0, sep);
+    
+    // is this a single key?
+    if(sep == std::string::npos) {
+        _map[k] = value;
+        return true;
+    }
+    
+    // do I have this key?
+    if(_map.count(k)==0) {
+        _map[k] = Dictionary();
+    } else if( ! _map[k].is<Dictionary>()) {
+        return false;
+    }
+    
+    return _map[k].as<Dictionary>().insert(_rest(key, sep), value);
+}
+
+bool Dictionary::insert(const std::string& key, const char* value){
+    return insert(key, std::string(value));
+}
+
+std::string Dictionary::_rest(const std::string& key, size_t separator) const {
+    return key.substr(separator+SeparatorLength,key.length() - separator - SeparatorLength);
+}
+
+}
