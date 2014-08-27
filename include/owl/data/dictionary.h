@@ -47,6 +47,7 @@ public:
     
     Dictionary();
     Dictionary(const Dictionary& rhs);
+    Dictionary operator=(const Dictionary& rhs);
     
     iterator begin() noexcept;
     const_iterator begin() const noexcept;

@@ -32,6 +32,8 @@
 #include <owl/network/websocket.h>
 
 #include <owl/data/any.h>
+#include <owl/data/typeinfo.h>
+#include <owl/data/dictionary.h>
 #include <owl/data/threadsafevector.hpp>
 #include <owl/data/threadsafemap.hpp>
 #include <owl/time/timer.h>
@@ -80,15 +82,29 @@ int main(int argc, char** argv) {
     owl::LogManager::ref().addLogger(new owl::StreamLog(std::cout));
     owl::Filesystem::initialize();
 
-    
+
     std::string dir = "";
     if(FileSys.findFile("CMakeLists.txt", dir)) {
         FileSys.registerToken("${BASE_PATH}", dir);
     } else {
         FileSys.registerToken("${BASE_PATH}", FileSys.workingDirectory());
     }
-
-    int port = 22222;
+    
+    const std::string str = R"(
+return {
+    port = 22222,
+}
+)";
+    
+    
+    owl::Dictionary dict;
+    owl::Lua lua;
+    lua.loadStringIntoDictionary(str, dict);
+    double p;
+    if( ! dict.get("port", p))
+        return EXIT_FAILURE;
+    
+    int port = static_cast<int>(p);
     
     std::string source = R"(
     function luafunc(a)
@@ -103,7 +119,6 @@ int main(int argc, char** argv) {
 
     )";
     
-    owl::Lua lua;
     std::string buffer;
     double d;
     

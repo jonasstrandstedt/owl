@@ -32,6 +32,7 @@
 #include <typeinfo>
 #include <cassert>
 #include <string>
+#include <sstream>
 
 template <class T>
 using StorageType = typename std::decay<T>::type;

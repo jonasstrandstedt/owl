@@ -32,6 +32,12 @@ namespace owl {
 
 Dictionary::Dictionary() {}
 Dictionary::Dictionary(const Dictionary& rhs): _map(rhs._map.begin(),rhs._map.end()) {}
+Dictionary Dictionary::operator=(const Dictionary& rhs) {
+    if (this != &rhs) {
+        _map = std::map<std::string, owl::Any>(rhs._map.begin(),rhs._map.end());
+    }
+    return *this;
+}
 
 Dictionary::iterator Dictionary::begin() noexcept {
     return _map.begin();
