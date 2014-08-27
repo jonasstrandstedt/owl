@@ -28,6 +28,7 @@
 #include <owl/logging/logmanager.h>
 #include <owl/data/any.h>
 #include <cstdarg>
+#include <owl/data/dictionary.h>
 
 extern "C"{
     #include <lua.h>
@@ -43,14 +44,19 @@ public:
     ~Lua();
     
     void pushFunction(const std::string& name, lua_CFunction f);
-    void loadFile(const std::string& filename);
-    void loadString(const std::string& source);
+    bool loadFile(const std::string& filename);
+    bool loadString(const std::string& source);
     bool call(const std::string& func, const std::string sig = "", ...);
+    
+    bool loadStringIntoDictionary(const std::string& str, Dictionary& d);
+    bool loadFileIntoDictionary(const std::string& filename, Dictionary& d);
     
 private:
     void pushOwlObject();
     void pushOwlFunctions();
     void pushOwlFunction(const std::string& name, lua_CFunction f, const std::string& group = "");
+    
+    bool doPopulateDictionary(Dictionary& d);
 
     lua_State* _state;
 };

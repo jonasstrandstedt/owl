@@ -22,6 +22,8 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
+#ifndef __DICTIONARY_H__
+#define __DICTIONARY_H__
 
 #include <owl/data/any.h>
 #include <owl/data/typeinfo.h>
@@ -93,3 +95,5 @@ private:
 };
 
 }
+
+#endif

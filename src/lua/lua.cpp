@@ -133,6 +133,69 @@ namespace {
         lua_pushboolean(L, success);
         return 1;
     }
+    
+    void populateDictionary(lua_State* state, owl::Dictionary& dict) {
+        static const int KEY = -2;
+        static const int VAL = -1;
+        enum class TableType {
+            Undefined = 1,  // 001
+            Map = 3,        // 010
+            Array = 5       // 101
+        };
+        TableType type = TableType::Undefined;
+        lua_pushnil(state);
+        while (lua_next(state, KEY) != 0) {
+            // get the key name
+            std::string key;
+            const int keyType = lua_type(state, KEY);
+            switch (keyType) {
+                case LUA_TNUMBER:
+                    if (type == TableType::Map) {
+                        LERROR("Dictionary can only contain a pure map or a pure array");
+                        return;
+                    }
+                    type = TableType::Array;
+                    key = std::to_string(lua_tointeger(state, KEY));
+                    break;
+                case LUA_TSTRING:
+                    if (type == TableType::Array) {
+                        LERROR("Dictionary can only contain a pure map or a pure array");
+                        return;
+                    }
+                    type = TableType::Map;
+                    key = lua_tostring(state, KEY);
+                    break;
+                default:
+                    LERRORC("luaTableToString", "Missing type: " << keyType);
+                    break;
+            }
+            // get the value
+            switch (lua_type(state, VAL)) {
+                case LUA_TNUMBER: {
+                    double value = lua_tonumber(state, VAL);
+                    dict.insert(key, value);
+                } break;
+                case LUA_TBOOLEAN: {
+                    bool value = (lua_toboolean(state, VAL) == 1);
+                    dict.insert(key, value);
+                } break;
+                case LUA_TSTRING: {
+                    std::string value = lua_tostring(state, VAL);
+                    dict.insert(key, value);
+                } break;
+                case LUA_TTABLE: {
+                    owl::Dictionary d;
+                    populateDictionary(state, d);
+                    dict.insert(key, d);
+                } break;
+                default:
+                    LERROR("Unknown type: " << std::to_string(lua_type(state, VAL)));
+                    return;
+            }
+            // get back up one level
+            lua_pop(state, 1);
+        }
+    }
 }
 
 namespace owl {
@@ -158,35 +221,37 @@ void Lua::pushFunction(const std::string& name, lua_CFunction f) {
     lua_setglobal(_state, name.c_str());
 }
 
-void Lua::loadFile(const std::string& filename) {
+bool Lua::loadFile(const std::string& filename) {
 
 
     int status = luaL_loadfile(_state, filename.c_str());
     if (status != LUA_OK) {
         LERROR("Error loading script: '" << lua_tostring(_state, -1) << "'");
-        return;
+        return false;
     }
     
-    //LDEBUG("Executing script");
     if (lua_pcall(_state, 0, LUA_MULTRET, 0)) {
         LERROR("Error executing script: " << lua_tostring(_state, -1));
-        return;
+        return false;
     }
+    
+    return true;
 }
 
-void Lua::loadString(const std::string& source) {
+bool Lua::loadString(const std::string& source) {
     
     int status = luaL_loadstring(_state, source.c_str());
     if (status != LUA_OK) {
         LERROR("Error loading source: '" << lua_tostring(_state, -1) << "'");
-        return;
+        return false;
     }
     
-    //LDEBUG("Executing script");
     if (lua_pcall(_state, 0, LUA_MULTRET, 0)) {
         LERROR("Error executing script: " << lua_tostring(_state, -1));
-        return;
+        return false;
     }
+    
+    return true;
 }
 
 // Originally from: http://www.lua.org/pil/25.3.html
@@ -282,6 +347,20 @@ bool Lua::call(const std::string& func, const std::string sig, ...) {
     va_end(vl);
     return true;
 }
+
+bool Lua::loadStringIntoDictionary(const std::string& str, Dictionary& d) {
+    if( ! loadString(str))
+        return false;
+    
+    return doPopulateDictionary(d);
+}
+
+bool Lua::loadFileIntoDictionary(const std::string& filename, Dictionary& d) {
+    if( ! loadFile(filename))
+        return false;
+    
+    return doPopulateDictionary(d);
+}
     
 void Lua::pushOwlObject() {
     const std::string s = R"(
@@ -325,6 +404,23 @@ void Lua::pushOwlFunction(const std::string& name, lua_CFunction f, const std::s
     pushFunction(name, f);
     loadString(s);
     
+}
+
+bool Lua::doPopulateDictionary(Dictionary& d) {
+    if (lua_isnil(_state, -1)) {
+        LERROR("Error in Lua string: Did not return anything.");
+        return false;
+    }
+    if (!lua_istable(_state, -1)) {
+        LERROR("Error in Lua string: Did not return a table.");
+        return false;
+    }
+    
+    populateDictionary(_state, d);
+    
+    // Clean up after ourselves by cleaning the stack
+    lua_settop(_state, 0);
+    return true;
 }
 
 }
