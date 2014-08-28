@@ -52,7 +52,6 @@ set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${LUA_INCLUDE_DIR})
 ############################################
 add_subdirectory(${OWL_ROOT_DIR}/src)
 
-
 ############################################
 # demo app
 ############################################
