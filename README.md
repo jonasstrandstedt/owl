@@ -1,5 +1,4 @@
 #owl
-===
 
 Open Whatever Library
 
@@ -15,7 +14,7 @@ A cross-platform library for useful tools that can be used in other projects.
 
 ##Dependencies
 
-None. Yes you heard it, there are no dependencies. The idea behind owl is that there are supposed to be no dependencies apart from CMake (which technically is no necessity) and a C++11 compliant compiler. Of course there are system requirements but nothing that needs to be installed beforehand.
+None. Yes you heard it, there are no dependencies. The idea behind owl is that there are supposed to be no dependencies apart from CMake (which technically is no necessity) and a C++11 compliant compiler. Of course there are system and compiler requirements but no external libraries.
 
 ###Supported systems
 
