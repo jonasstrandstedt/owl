@@ -191,7 +191,7 @@ bool Filesystem::_exists(int type, const std::string& path) const {
     if (statResult != 0)
         return false;
     
-    const int is = (((buffer.st_mode) & S_IFMT) == type);
+    const int is = (((buffer.st_mode) & S_IFMT) == static_cast<size_t>(type));
     //const int isFile = S_ISREG(buffer.st_mode);
     if (is == 0)
         return false;

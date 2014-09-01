@@ -29,11 +29,13 @@ set(SOURCE_ROOT_DIR ${OWL_ROOT_DIR}/src)
 set(HEADER_ROOT_DIR ${OWL_ROOT_DIR}/include)
 
 set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${HEADER_ROOT_DIR})
+set(OWL_LIBRARIES owl)
 
 ############################################
 # Macros
 ############################################
 
+# source group macro
 macro(add_group GROUP_NAME GROUP_DIRECTORY)
 	file(GLOB SOURCE ${SOURCE_ROOT_DIR}/${GROUP_DIRECTORY}/*.cpp ${SOURCE_ROOT_DIR}/${GROUP_DIRECTORY}/*.c)
 	set(OWL_SOURCE ${OWL_SOURCE} ${SOURCE})
@@ -70,26 +72,19 @@ add_group("Filesystem" "filesystem")
 ############################################
 # Library
 ############################################
-add_library(owl ${OWL_SOURCE} ${OWL_HEADER})
+add_library(${OWL_LIBRARIES} ${OWL_SOURCE} ${OWL_HEADER})
 include_directories(${OWL_INCLUDE_DIRS})
-target_link_libraries(owl ${OWL_DEPENDENCIES} ssl crypto)
-add_definitions(-std=c++11)
-
-# ssl
-add_definitions(-lssl)
-
-# crypto
-add_definitions(-lcrypto)
+target_link_libraries(${OWL_LIBRARIES} ${OWL_DEPENDENCIES} ssl crypto)
 
 
-# set(OWL_LIBRARIES owl)
-# set(OWL_INCLUDE_DIR ${HEADER_ROOT_DIR})
+if(MSVC)
+	add_definitions(-D__WIN32__)
+else(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+endif(MSVC)
+
+message(STATUS "owl libs: ${OWL_LIBRARIES}")
+message(STATUS "owl include: ${OWL_INCLUDE_DIRS}")
 
 set(OWL_LIBRARIES owl PARENT_SCOPE)
 set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} PARENT_SCOPE)
-# set(OWL_LIBRARIES ${OWL_LIBRARIES} PARENT_SCOPE)
-# set(OWL_INCLUDE_DIR ${OWL_INCLUDE_DIR} PARENT_SCOPE)
-
-
-# message(STATUS "owl libs: ${OWL_LIBRARIES}")
-# message(STATUS "owl include: ${OWL_INCLUDE_DIR}")

@@ -33,6 +33,6 @@ file(GLOB LUA_SOURCE ${LUA_ROOT_DIR}/src/*.c ${LUA_ROOT_DIR}/src/*.cpp)
 file(GLOB LUA_HEADER ${LUA_ROOT_DIR}/include/*.h ${LUA_ROOT_DIR}/include/*.hpp)
 
 add_library(Lua STATIC ${LUA_SOURCE})
-
+add_definitions(-Wno-deprecated-declarations)
 set (LUA_INCLUDE_DIR "${LUA_ROOT_DIR}/include")
 include_directories("${LUA_INCLUDE_DIR}")

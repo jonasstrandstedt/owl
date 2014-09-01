@@ -39,19 +39,19 @@ Dictionary Dictionary::operator=(const Dictionary& rhs) {
     return *this;
 }
 
-Dictionary::iterator Dictionary::begin() noexcept {
+Dictionary::iterator Dictionary::begin() {
     return _map.begin();
 }
 
-Dictionary::const_iterator Dictionary::begin() const noexcept {
+Dictionary::const_iterator Dictionary::begin() const {
     return _map.begin();
 }
 
-Dictionary::iterator Dictionary::end() noexcept {
+Dictionary::iterator Dictionary::end() {
     return _map.end();
 }
 
-Dictionary::const_iterator Dictionary::end() const noexcept {
+Dictionary::const_iterator Dictionary::end() const {
     return _map.end();
 }
 

@@ -73,8 +73,8 @@ namespace {
         'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
         'w', 'x', 'y', 'z', '0', '1', '2', '3',
         '4', '5', '6', '7', '8', '9', '+', '/'};
-    static char* decoding_table = nullptr;
-    static int mod_table[] = {0, 2, 1};
+
+    static size_t mod_table[] = {0, 2, 1};
 }
 
 namespace owl {
@@ -115,7 +115,13 @@ void WebSocket::handleRead(int length, SocketData_t* data) {
 			for (i = 0; i < packet_length; i++)
 				data[8 + i] ^= mask[i % 4];
 			rc = asprintf(&data, "%.*s", packet_length, data + 8);
-		}
+		} else {
+            rc = -1;
+        }
+
+        if(rc < 0)
+            LERROR("Could not print to 'data'");
+
 		callCallback(length, data);
         
 	} else if (_isOpen && data[0] & FIN_BIT && data[0] & OPT_BINARY_BIT) {
@@ -221,7 +227,7 @@ char* WebSocket::base64Encode(const unsigned char *data, size_t input_length) {
     char* encoded_data = new char[output_length];
     if (encoded_data == nullptr) return nullptr;
     
-    for (int i = 0, j = 0; i < input_length;) {
+    for (size_t i = 0, j = 0; i < input_length;) {
         
         uint32_t octet_a = i < input_length ? data[i++] : 0;
         uint32_t octet_b = i < input_length ? data[i++] : 0;
@@ -235,7 +241,7 @@ char* WebSocket::base64Encode(const unsigned char *data, size_t input_length) {
         encoded_data[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
     }
     
-    for (int i = 0; i < mod_table[input_length % 3]; i++)
+    for (size_t i = 0; i < mod_table[input_length % 3]; i++)
         encoded_data[output_length - 1 - i] = '=';
     
     return encoded_data;

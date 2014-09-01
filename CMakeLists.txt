@@ -56,7 +56,11 @@ add_subdirectory(${OWL_ROOT_DIR}/src)
 # demo app
 ############################################
 add_executable(owl_demo ${OWL_ROOT_DIR}/demo/demo.cpp)
-add_definitions(-std=c++11)
+if(MSVC)
+	add_definitions(-D__WIN32__)
+else(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+endif(MSVC)
 
 include_directories(${OWL_INCLUDE_DIRS})
 target_link_libraries(owl_demo owl )

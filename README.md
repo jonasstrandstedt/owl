@@ -19,8 +19,8 @@ None. Yes you heard it, there are no dependencies. The idea behind owl is that t
 ###Supported systems
 
 - [x] OS X Xcode
-- [ ] Linux GCC 
-- [ ] Linux Clang
+- [x] Linux GCC 
+- [x] Linux Clang
 - [ ] Windows Visual Studio  2013
 
 ##License

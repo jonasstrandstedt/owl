@@ -35,6 +35,7 @@ typedef char SocketData_t;
 #include <cstdint>
 
 // Unix includes
+#ifndef __WIN32__
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -42,6 +43,7 @@ typedef char SocketData_t;
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <openssl/sha.h>
+#endif
 
 // C++11 includes
 #include <thread>

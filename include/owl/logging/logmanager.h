@@ -30,6 +30,8 @@
 
 #include <vector>
 #include <sstream>
+#include <cstdio>
+#include <cstring>
 
 namespace owl {
 class LogManager: public Singleton<LogManager> {
@@ -38,7 +40,7 @@ public:
     void addLogger(Log* logger);
     void log(Log::LogLevel level, const std::string& category, const std::string& message);
     
-    friend class Singleton;
+	friend class Singleton<LogManager>;
 protected:
     LogManager();
     ~LogManager();

@@ -49,11 +49,11 @@ public:
     Dictionary(const Dictionary& rhs);
     Dictionary operator=(const Dictionary& rhs);
     
-    iterator begin() noexcept;
-    const_iterator begin() const noexcept;
+    iterator begin();
+    const_iterator begin() const;
     
-    iterator end() noexcept;
-    const_iterator end() const noexcept;
+    iterator end();
+    const_iterator end() const;
     
     std::vector<std::string> keys() const;
 

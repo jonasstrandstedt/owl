@@ -265,7 +265,7 @@ bool Lua::call(const std::string& func, const std::string sig, ...) {
     // push arguments
     narg = 0;
     bool foundBreak = false;
-    for(int i = 0; i < sig.size() && foundBreak == false; ++i) {
+    for(size_t i = 0; i < sig.size() && foundBreak == false; ++i) {
         switch (sig.at(i)) {
                 
             case 'b':  // bool argument
@@ -301,7 +301,7 @@ bool Lua::call(const std::string& func, const std::string sig, ...) {
     
     // retrieve results
     nres = -nres;  // stack index of first result
-    for(int i = narg+1; i < sig.size(); ++i) {
+    for(size_t i = narg+1; i < sig.size(); ++i) {
         //while (*sig) {  // get results
         //LDEBUG("i: " << i);
         //LDEBUG("nres: " << nres);
