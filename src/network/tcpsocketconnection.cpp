@@ -59,7 +59,11 @@ void TCPSocketConnection::start() {
 void TCPSocketConnection::close() {
     //LDEBUGC("SocketConnection", "Connection stopped: " << identifier());
 	shutdown(_socket,2);
+#ifdef __WIN32__
+	::closesocket(_socket);
+#else
 	::close(_socket);
+#endif
     _socket = -1;
 }
 
@@ -73,7 +77,11 @@ void TCPSocketConnection::write(int length, const SocketData_t* data) {
 }
 
 void TCPSocketConnection::_write(int length, const SocketData_t* data) {
-    int n = ::write(_socket, data, length);
+#ifdef __WIN32__
+	int n = send(_socket, data, length, 0);
+#else
+	int n = ::write(_socket, data, length);
+#endif
 	if (n < 0)
         LWARNINGC("SocketConnection::send", "Error when sending msg \"" << data << "\"");
 }
@@ -114,7 +122,11 @@ void TCPSocketConnection::socketConnectionListener(TCPSocketConnection* connecti
         
         // clean up buffer
         memset(buffer,0,OWL_SOCKET_BUFFER_SIZE);
+#ifdef __WIN32__
+		n = recv(connection->_socket, buffer, OWL_SOCKET_BUFFER_SIZE-1, 0);
+#else
         n = read(connection->_socket,buffer,OWL_SOCKET_BUFFER_SIZE-1);
+#endif
         //buffer[n] = '\0';
         if (n<=0) {
             keepgoing = false;

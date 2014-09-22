@@ -72,12 +72,19 @@ private:
 	int acceptConnection();
 
 	std::thread         _listenerThread;
-    
+
+#ifdef __WIN32__
+	int                 _serverSocket;
+	socklen_t           _clilen;
+	struct sockaddr_in  _serv_addr;
+	struct sockaddr_in  _cli_addr;
+#else
     int                 _serverSocket;
 	socklen_t           _clilen;
 	struct sockaddr_in  _serv_addr;
     struct sockaddr_in  _cli_addr;
-    
+#endif    
+
     OpenCallback_t _connectionOpenCallback;
     CloseCallback_t _connectionCloseCallback;
     ReadCallback_t _connectionReadCallback;

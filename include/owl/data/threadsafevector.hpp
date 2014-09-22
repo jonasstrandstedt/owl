@@ -74,19 +74,19 @@ public:
     /********************************************
      * Iterators                                *
      ********************************************/
-    typename std::vector<T>::iterator begin() noexcept {
+    typename std::vector<T>::iterator begin() {
         return _vector->begin();
     }
     
-    typename std::vector<T>::const_iterator begin() const noexcept {
+    typename std::vector<T>::const_iterator begin() const {
         return _vector->begin();
     }
     
-    typename std::vector<T>::iterator end() noexcept {
+    typename std::vector<T>::iterator end() {
         return _vector->end();
     }
     
-    typename std::vector<T>::const_iterator end() const noexcept {
+    typename std::vector<T>::const_iterator end() const {
         return _vector->end();
     }
     

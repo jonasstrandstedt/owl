@@ -43,6 +43,11 @@ TCPServer::~TCPServer() {
 
 bool TCPServer::initialize(int port) {
 
+#ifdef __WIN32__
+	if (!NetworkIsInitialized())
+		NetworkInitialize();
+#endif
+
     if (isOpen()) {
         LWARNING("Already initialized, aborting initialize.");
         return false;
@@ -72,8 +77,13 @@ bool TCPServer::initialize(int port) {
 }
 
 void TCPServer::stopAcceptIncoming() {
-    ::shutdown(_serverSocket,SHUT_RDWR);
+#ifdef __WIN32__
+	::shutdown(_serverSocket, SD_SEND);
+	::closesocket(_serverSocket);
+#else
+	::shutdown(_serverSocket, SHUT_RDWR);
 	::close(_serverSocket);
+#endif
     _listenerThread.join();
     _serverSocket = -1;
 }

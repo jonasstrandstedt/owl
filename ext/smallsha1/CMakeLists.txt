@@ -23,15 +23,15 @@
 #########################################################################################
 
 cmake_minimum_required(VERSION 2.8.0)
-project(Lua)
+project(SmallSHA1)
 
-if (NOT LUA_ROOT_DIR)
-    set(LUA_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+if (NOT SMALLSHA1_ROOT_DIR)
+    set(SMALLSHA1_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 endif ()
 
-file(GLOB LUA_SOURCE ${LUA_ROOT_DIR}/src/*.c ${LUA_ROOT_DIR}/src/*.cpp)
-file(GLOB LUA_HEADER ${LUA_ROOT_DIR}/include/*.h ${LUA_ROOT_DIR}/include/*.hpp)
+file(GLOB SMALLSHA1_SOURCE ${SMALLSHA1_ROOT_DIR}/src/*.c ${SMALLSHA1_ROOT_DIR}/src/*.cpp)
+file(GLOB SMALLSHA1_HEADER ${SMALLSHA1_ROOT_DIR}/include/*.h ${SMALLSHA1_ROOT_DIR}/include/*.hpp)
 
-add_library(Lua STATIC ${LUA_SOURCE})
-set (LUA_INCLUDE_DIR "${LUA_ROOT_DIR}/include")
-include_directories("${LUA_INCLUDE_DIR}")
+add_library(SmallSHA1 STATIC ${SMALLSHA1_SOURCE})
+set (SMALLSHA1_INCLUDE_DIR "${SMALLSHA1_ROOT_DIR}/include")
+include_directories("${SMALLSHA1_INCLUDE_DIR}/sha1")

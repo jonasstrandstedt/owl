@@ -25,6 +25,8 @@
 #include <owl/network/websocket.h>
 #include <owl/logging/logmanager.h>
 
+#include <sha1/sha1.h>
+
 namespace {
     const char FIN_BIT = (1<<7);
     const char OPT_TEXT_BIT = 0x1;
@@ -109,12 +111,14 @@ void WebSocket::handleRead(int length, SocketData_t* data) {
 			// Unmask the payload.
 			for (i = 0; i < packet_length; i++)
 				data[6 + i] ^= mask[i % 4];
-			rc = asprintf(&data, "%.*s", packet_length, data + 6);
+			rc = sprintf(data, "%.*s", packet_length, data + 6);
+			//rc = asprintf(&data, "%.*s", packet_length, data + 6);
 		} else if (packet_length == 127) {
 			// Unmask the payload.
 			for (i = 0; i < packet_length; i++)
 				data[8 + i] ^= mask[i % 4];
-			rc = asprintf(&data, "%.*s", packet_length, data + 8);
+			rc = sprintf(data, "%.*s", packet_length, data + 8);
+			//rc = asprintf(&data, "%.*s", packet_length, data + 8);
 		} else {
             rc = -1;
         }
@@ -196,11 +200,11 @@ void WebSocket::handshake(int length, const char* data) {
 	secKey.append(magic);
     
 	unsigned char hash[20];
-	SHA1(reinterpret_cast<const unsigned char*>(secKey.c_str()),secKey.length(),hash);
+	sha1::calc(secKey.c_str(), secKey.length(), hash);
 	char *encoded_data = base64Encode(hash, 20);
 	std::string encoded = std::string(encoded_data, 28);
 	delete[] encoded_data;
-    
+
 	std::string reply = "";
 	reply += "HTTP/1.1 101 Web Socket Protocol Handshake\r\n";
 	reply += "Upgrade: WebSocket\r\n";
@@ -208,7 +212,7 @@ void WebSocket::handshake(int length, const char* data) {
 	reply += "WebSocket-Origin: " + origin + "\r\n";
 	reply += "WebSocket-Location: ws://"+host+"\r\n";
 	reply += "Sec-WebSocket-Accept: "+encoded+"\r\n\r\n";
-    
+	// LDEBUG(reply);
     _write(reply.length(), reply.c_str());
     
     // The connection is only assumed to be OK at this point (It should be OK). Need a

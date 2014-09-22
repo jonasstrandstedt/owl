@@ -21,8 +21,13 @@ None. Yes you heard it, there are no dependencies. The idea behind owl is that t
 - [x] OS X Xcode
 - [x] Linux GCC 
 - [x] Linux Clang
-- [ ] Windows Visual Studio  2013
+- [x] Windows Visual Studio  2013 (Compiles but not 100% feature complete)
 
 ##License
 
 owl is MIT licensed for easy integration in any other project. Although I appreciate an acknowledgment if owl is used.
+
+## Integrated Libraries (individual licences)
+
+- http://www.lua.org/
+- https://code.google.com/p/smallsha1/

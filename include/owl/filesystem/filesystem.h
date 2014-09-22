@@ -60,9 +60,12 @@ private:
     bool _hasTokens(const std::string& path);
     std::string _resolveTokens(const std::string& path);
     std::string _absolutePath(const std::string& path, bool verbose = true) const;
+
+#ifndef __WIN32__
     std::vector<std::string> _list(int type, const std::string& path) const;
     bool _exists(int type, const std::string& path) const;
-    
+#endif
+
     std::map<std::string,std::string> _tokens;
     
 #ifdef OWL_FILESYSTEM_CACHE

@@ -35,7 +35,14 @@ typedef char SocketData_t;
 #include <cstdint>
 
 // Unix includes
-#ifndef __WIN32__
+#ifdef __WIN32__
+
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#include <stdio.h>
+
+#else
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -43,6 +50,7 @@ typedef char SocketData_t;
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <openssl/sha.h>
+
 #endif
 
 // C++11 includes
@@ -59,6 +67,11 @@ typedef std::function<void(TCPSocketConnection*)>                           Open
 typedef std::function<void(TCPSocketConnection*, int, const SocketData_t*)> ReadCallback_t;
 typedef std::function<void(TCPSocketConnection*)>                           CloseCallback_t;
 typedef std::function<void(int, const SocketData_t*)>                       ClientReadCallback_t;
+
+bool NetworkIsInitialized();
+bool NetworkInitialize();
+void NetworkDeinitialize();
+
 }
 
 #endif

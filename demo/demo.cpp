@@ -22,33 +22,22 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#include <owl/filesystem/filesystem.h>
-#include <owl/logging/logmanager.h>
-#include <owl/logging/streamlog.h>
+// many owl stuff
+#include <owl/owl>
 
+// network
 #include <owl/network/tcpclient.h>
 #include <owl/network/tcpserver.h>
 #include <owl/network/tcpsocket.h>
 #include <owl/network/websocket.h>
 
-#include <owl/data/any.h>
-#include <owl/data/typeinfo.h>
-#include <owl/data/dictionary.h>
-#include <owl/data/threadsafevector.hpp>
-#include <owl/data/threadsafemap.hpp>
-#include <owl/time/timer.h>
-
-#include <owl/lua/lua.h>
-
+// std
 #include <limits>
-
-
-#define relative "../.."
+#include <condition_variable>
 
 namespace {
     std::string _loggerCat = "Demo";
 }
-
 
 owl::ThreadSafeVector<owl::TCPSocketConnection*> _connections;
 //owl::ThreadSafeMap<owl::TCPSocketConnection*> _connectionsM;
@@ -78,9 +67,7 @@ owl::ReadCallback_t r = [](owl::TCPSocketConnection* connection, int length, con
 };
 
 int main(int argc, char** argv) {
-    owl::LogManager::initialize();
-    owl::LogManager::ref().addLogger(new owl::StreamLog(std::cout));
-    owl::Filesystem::initialize();
+	owl::DefaultInitialize();
 
 
     std::string dir = "";
@@ -148,13 +135,26 @@ return {
             return 1;
         
         server.startAcceptIncoming<owl::WebSocket>();
+        //std::mutex m;
+        //std::condition_variable cv;
+        //
+        //std::string line;
+        //std::unique_lock<std::mutex> lk(m);
+        //owl::SignalHandler::SignalCallback sc = [&cv](owl::SignalHandler::Signal s) {
+        //    LDEBUGC("Signal", "Got:" << owl::SignalHandler::toString(s));
+        //    cv.notify_one();
+        //};
+        //int s = owl::SignalHandler::Signal::All;
+        //owl::SignalHandler::ref().setCallback(s,sc);
+        //cv.wait(lk);
+		std::string line;
+		std::getline(std::cin, line);
         
-        std::string line;
-        while (std::getline(std::cin, line)) {
-            if (line == "q" || line == "quit")
-                break;
-        }
+        LDEBUG("Stopping");
         server.stopAcceptIncoming();
+        for(auto c: _connections) {
+            c->close();
+        }
     } else {
         owl::TCPClient client;
         if( ! client.connectLocalhost(port))
@@ -178,8 +178,8 @@ return {
     }
     
     
-    LDEBUG("Done!");
-    owl::LogManager::deinitialize();
+	LDEBUG("Done!");
+	owl::DefaultDeinitialize();
     
     return 0;
 }

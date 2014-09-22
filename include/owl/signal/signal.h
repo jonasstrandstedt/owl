@@ -22,59 +22,63 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
+#ifndef __SIGNAL_H__
+#define __SIGNAL_H__
 
-#include <owl/logging/streamlog.h>
-#include <owl/time/time.h>
+#include <owl/designpattern/singleton.hpp>
 
-#include <iomanip>
-#include <iostream>
-
-namespace {
-    int roundUp(int numToRound, int multiple) {
-        if(multiple < 2) {
-            return numToRound;
-        }
-        
-        int remainder = numToRound % multiple;
-        if (remainder == 0) {
-            return numToRound;
-        }
-        
-        return numToRound + multiple - remainder; 
-    }
-}
+#include <functional>
+#include <mutex>
+#include <array>
 
 namespace owl {
 
-StreamLog::StreamLog(std::ostream& stream, LogLevel level): Log(level), _stream(stream) {}
+class SignalHandler: public Singleton<SignalHandler> {
+public:
+/*
+    enum class Signal {
+        Hangup, Abort, Quit, IllegalInstruction, Interrupt, Kill, Terminate, Stop, TTYStop
+    };
+  */
+    
+    static const int NumberOfCallbacks = 9;
+    
+    enum Signal {
+        Hangup              = 1 << 0,
+        Abort               = 1 << 1,
+        Quit                = 1 << 2,
+        IllegalInstruction  = 1 << 3,
+        Interrupt           = 1 << 4,
+        Kill                = 1 << 5,
+        Terminate           = 1 << 6,
+        Stop                = 1 << 7,
+        TTYStop             = 1 << 8,
+        All                 = Hangup | Abort | Quit | IllegalInstruction | Interrupt | Kill | Terminate | Stop | TTYStop
+    };
 
-StreamLog::~StreamLog() {}
+    typedef std::function<void(Signal)> SignalCallback;
 
-void StreamLog::log(Log::LogLevel level, const std::string& category, const std::string& message) {
-    if (level >= _level) {
-        
-        if(_logBits & Log::LogBits::TimeStampBit) {
-			static const int timeWidth = owl::Time::getTimeFormat(_timeFormat).length() + 2;
-            _stream << std::setw(timeWidth) << std::left << owl::Time::getTimeFormat(_timeFormat);
-        }
-        if(_logBits & Log::LogBits::LevelBit) {
-            static const int levelWidth = 12;
-            _stream << std::setw(levelWidth) << std::left << "(" + LevelToString(level) + ")";
-        }
-        if(_logBits & Log::LogBits::CategoryBit) {
-			const int catWidth = (category.length() <= 20) ? 22 : roundUp(category.length(), 5) + 2;
-            _stream << std::setw(catWidth) << std::left << category;
-        }
-        if (_logBits & Log::LogBits::MessageBit) {
-            if(_logBits ^ Log::LogBits::MessageBit)
-                _stream << "| ";
-            _stream << message;
-        }
-        
-        if(_logBits)
-            _stream << std::endl;
+    SignalHandler();
+    ~SignalHandler();
+    
+    void setCallback(int signals, SignalCallback callback);
+    
+    static std::string toString(Signal signal);
+    static std::string toString(int signal);
+    
+    
+private:
+    friend void owl_signal_handler(int signo);
+    void call(int signo);
 
-    }
-}
+    std::mutex _lock;
+    
+    std::array<SignalCallback, NumberOfCallbacks> _callbacks;
+    
+    int signalnumber (Signal s);
+    int numberToSignalPosition (int signo);
+    
+}; // StreamLog
+}  // owl 
 
-} // owl
+#endif

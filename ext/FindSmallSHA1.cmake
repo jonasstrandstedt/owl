@@ -22,16 +22,14 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         #
 #########################################################################################
 
-cmake_minimum_required(VERSION 2.8.0)
-project(Lua)
+set(SMALLSHA1_ROOT_DIR "${OWL_ROOT_DIR}/ext/smallsha1")
+add_subdirectory(${SMALLSHA1_ROOT_DIR})
 
-if (NOT LUA_ROOT_DIR)
-    set(LUA_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-endif ()
+set(SMALLSHA1_LIBRARIES SmallSHA1)
+set(SMALLSHA1_INCLUDE_DIR ${SMALLSHA1_ROOT_DIR}/include)
 
-file(GLOB LUA_SOURCE ${LUA_ROOT_DIR}/src/*.c ${LUA_ROOT_DIR}/src/*.cpp)
-file(GLOB LUA_HEADER ${LUA_ROOT_DIR}/include/*.h ${LUA_ROOT_DIR}/include/*.hpp)
 
-add_library(Lua STATIC ${LUA_SOURCE})
-set (LUA_INCLUDE_DIR "${LUA_ROOT_DIR}/include")
-include_directories("${LUA_INCLUDE_DIR}")
+# handle the QUIETLY and REQUIRED arguments and set OWL_FOUND to TRUE
+# if all listed variables are TRUE
+find_package_handle_standard_args(SmallSha1  DEFAULT_MSG
+                                  SMALLSHA1_LIBRARIES SMALLSHA1_INCLUDE_DIR)

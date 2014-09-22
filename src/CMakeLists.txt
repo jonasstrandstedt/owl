@@ -69,18 +69,29 @@ add_group("Lua" "lua")
 # Patterns
 add_group("Filesystem" "filesystem")
 
+# Patterns
+add_group("Signal" "signal")
+
+# Special group
+file(GLOB MAIN_SOURCE ${SOURCE_ROOT_DIR}/*.cpp ${SOURCE_ROOT_DIR}/*.c)
+set(OWL_SOURCE ${OWL_SOURCE} ${MAIN_SOURCE})
+file(GLOB MAIN_HEADERS ${HEADER_ROOT_DIR}/owl/*.h ${HEADER_ROOT_DIR}/owl/*.inl ${HEADER_ROOT_DIR}/owl/*.hpp ${HEADER_ROOT_DIR}/owl/owl)
+set(OWL_HEADER ${OWL_HEADER} ${MAIN_HEADERS})
+source_group("Owl" FILES ${MAIN_SOURCE} ${MAIN_HEADERS})
+
 ############################################
 # Library
 ############################################
 add_library(${OWL_LIBRARIES} ${OWL_SOURCE} ${OWL_HEADER})
 include_directories(${OWL_INCLUDE_DIRS})
-target_link_libraries(${OWL_LIBRARIES} ${OWL_DEPENDENCIES} ssl crypto)
-
 
 if(MSVC)
 	add_definitions(-D__WIN32__)
+	target_link_libraries(${OWL_LIBRARIES} ${OWL_DEPENDENCIES} Ws2_32)
 else(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+	#target_link_libraries(${OWL_LIBRARIES} ${OWL_DEPENDENCIES} ssl crypto)
+	target_link_libraries(${OWL_LIBRARIES} ${OWL_DEPENDENCIES})
 endif(MSVC)
 
 message(STATUS "owl libs: ${OWL_LIBRARIES}")

@@ -26,15 +26,23 @@
 
 #include <owl/logging/logmanager.h>
 
+#ifdef __WIN32__
+#include <filesystem>
+#else
 #include <dirent.h>
 #include <sys/param.h>
 #include <sys/stat.h>
+#endif
 
 namespace {
     const std::string _loggerCat = "Filesystem";
     const std::string TokenOpen = "${";
     const std::string TokenClose = "}";
+#ifdef __WIN32__
+	const std::string Separator = "\\";
+#else
     const std::string Separator = "/";
+#endif
 }
 
 namespace owl {
@@ -96,19 +104,57 @@ std::string Filesystem::workingDirectory() const {
 }
 
 std::vector<std::string> Filesystem::listFiles(const std::string& path) const {
+#ifdef __WIN32__
+	std::vector<std::string> files;
+	//std::tr2::sys::path p(path);
+	//if ( ! std::tr2::sys::exists(p)) return files;
+
+	//std::tr2::sys::directory_iterator end_itr; // default construction yields past-the-end
+	//for (std::tr2::sys::directory_iterator itr(p); itr != end_itr; ++itr) {
+	//	if (std::tr2::sys::is_regular_file(itr->status())) {
+	//		//files.push_back(itr->path());
+	//	}
+	//}
+	return files;
+#else
     return _list(DT_REG, path);
+#endif
 }
 
 std::vector<std::string> Filesystem::listDirectories(const std::string& path) const {
-    return _list(DT_DIR, path);
+#ifdef __WIN32__
+	std::vector<std::string> dirs;
+	//std::tr2::sys::path p(path);
+	//if (!std::tr2::sys::exists(p)) return dirs;
+
+	//std::tr2::sys::directory_iterator end_itr; // default construction yields past-the-end
+	//for (std::tr2::sys::directory_iterator itr(p); itr != end_itr; ++itr) {
+	//	if (std::tr2::sys::is_directory(itr->status())) {
+	//		//dirs.push_back(itr->path());
+	//	}
+	//}
+	return dirs;
+#else
+	return _list(DT_DIR, path);
+#endif
 }
 
 bool Filesystem::fileExists(const std::string& path) const {
+#ifdef __WIN32__
+	return false;
+	//return std::tr2::sys::is_regular_file(path);
+#else
     return _exists(S_IFREG, _absolutePath(path, false));
+#endif
 }
 
 bool Filesystem::directoryExists(const std::string& path) const {
-    return _exists(S_IFDIR, _absolutePath(path, false));
+#ifdef __WIN32__
+	return false;
+	//return std::tr2::sys::is_directory(path);
+#else
+	return _exists(S_IFDIR, _absolutePath(path, false));
+#endif
 }
 
     
@@ -151,9 +197,12 @@ std::string Filesystem::_resolveTokens(const std::string& path) {
 }
 
 std::string Filesystem::_absolutePath(const std::string& path, bool verbose) const {
-
-    std::string result = path;
-    
+#ifdef __WIN32__
+	return path;
+	//std::tr2::sys::path myfile(path);
+	//return myfile.string();
+#else
+	std::string result = path;
     char* b = nullptr;
     char errorBuffer[MAX_PATH_SIZE];
     memset(errorBuffer, 0, MAX_PATH_SIZE);
@@ -163,10 +212,12 @@ std::string Filesystem::_absolutePath(const std::string& path, bool verbose) con
         LERROR("Error resolving the real path. Problem part: '" << errorBuffer << "'");
     } else if(b != NULL) {
         result = {b};
-    }
-    return result;
+	}
+	return result;
+#endif
 }
 
+#ifndef __WIN32__
 std::vector<std::string> Filesystem::_list(int type, const std::string& path) const {
     std::vector<std::string> list;
     DIR *dir;
@@ -198,5 +249,6 @@ bool Filesystem::_exists(int type, const std::string& path) const {
     
     return true;
 }
+#endif
 
 }

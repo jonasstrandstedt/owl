@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<link rel="stylesheet" href="jquery.mobile-1.3.0.min.css" />
+	<link rel="stylesheet" href="style.css" />
+
+	<script src="jquery-1.9.1.min.js"></script>
+	<script src="jquery.mobile-1.3.0.min.js"></script>
+
+	<title>WebSockets Client</title>
+
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+
+		if(!("WebSocket" in window)){
+			$('#chatLog, input, button, #examples').fadeOut("fast");
+			$('<p>Oh no, you need a browser that supports WebSockets. How about <a href="http://www.google.com/chrome">Google Chrome</a>?</p>').appendTo('#container');
+		}else{
+			//The user has WebSockets
+			var socket;
+			var down = '';
+			var up = '';
+			if (!!('ontouchstart' in window)) {
+				down = 'touchstart';
+				up = 'touchend';
+			} else {
+				down = 'vmousedown';
+				up = 'vmouseup';
+			}
+
+
+			function connect(){
+				
+				var host = "ws://localhost:22222";
+
+
+				try{
+					socket = new WebSocket(host);
+
+					message('<p class="event">Socket Status: '+socket.readyState);
+
+					socket.onopen = function(){
+						$('#login').hide();
+						$('#playing').show();
+						message('<p class="event">Socket Status: '+socket.readyState+' (open)');
+
+					}
+
+					socket.onmessage = function(msg){
+						console.log('Received: '+msg.data);
+						//message('<p class="message">Received: '+msg.data);
+					}
+
+					socket.onclose = function(){
+						message('<p class="event">Socket Status: '+socket.readyState+' (Closed)');
+						$('#login').show();
+						$('#playing').hide();
+					}			
+
+				} catch(exception){
+					message('<p>Error with exception: '+exception);
+				}
+
+
+				function message(msg){
+					//$('#debug').append(msg+'</p>');
+				}
+
+				$('#disconnect').click(function(){
+					socket.close();
+
+				});
+
+				$('#button_left').bind(down,function(){
+					try{
+						socket.send("left down");
+						//message('<p class="event">Left down');
+
+					} catch(exception){
+					}
+				});
+				$('#button_left').bind(up,function(){
+					try{
+						socket.send("left up");
+						//message('<p class="event">Left up');
+
+					} catch(exception){
+					}
+				});
+
+
+				$('#button_right').bind(down,function(){
+					try{
+						socket.send("right down");
+						//message('<p class="event">Right down');
+
+					} catch(exception){
+					}
+				});
+
+				$('#button_right').bind(up,function(){
+					try{
+						socket.send("right up");
+						//message('<p class="event">Right up');
+
+					} catch(exception){
+					}
+				});
+
+
+				$('#button_fire').bind(down,function(){
+					try{
+						socket.send("fire down");
+
+					} catch(exception){
+					}
+				});
+
+				$('#button_fire').bind(up,function(){
+					try{
+						socket.send("fire up");
+
+					} catch(exception){
+					}
+				});
+
+				$('#button_fly').bind(down,function(){
+					try{
+						socket.send("fly down");
+
+					} catch(exception){
+					}
+				});
+
+				$('#button_fly').bind(up,function(){
+					try{
+						socket.send("fly up");
+
+					} catch(exception){
+					}
+				});
+
+				
+
+
+
+			}//End connect
+
+			$('#connect').click(function(){
+				connect();
+			});
+
+			$('#noscript').hide();
+			$('#login').show();
+			$('#playing').hide();
+
+
+			$(window).bind('orientationchange',function(){
+				window.scrollTo(0,0);
+			});
+
+			$("#login").on("touchmove", false);
+			$("#playing").on("touchmove", false);
+		} //End else
+	});
+</script>
+
+</head>
+
+<body>
+	<div id="wrapper">
+		<div id="container" class="ui-body -body-b">
+
+			<div id="noscript">
+				<p>You need to enable javascript</p>
+			</div>
+			<div id="login">
+					<p>Play by using your phone as a remote controller. When connected you will control a tank and your goal is to earn points by shooting the other tanks.</p>
+					<p>The controllers work best in landscape mode.</p>
+					<button id="connect">Connect to start playing</button>
+			</div>
+			<div id="playing">
+				<button id="disconnect">Rage quit</button>
+
+				<div class="bigbutton">
+					<div class="clear">
+						<button id="button_left">Left</button>
+						<button id="button_right">Right</button>
+						<button id="button_fire">Fire</button>
+						<button id="button_fly">Fly</button>
+					</div>
+				</div>
+
+			</div>
+
+		</div><!-- #container -->
+
+		<div id="debug">
+
+		</div><!-- #chatLog -->
+	</div>
+</body>
+</html>

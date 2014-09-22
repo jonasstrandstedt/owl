@@ -47,6 +47,11 @@ find_package(Lua REQUIRED)
 set(OWL_DEPENDENCIES ${OWL_DEPENDENCIES} ${LUA_LIBRARIES})
 set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${LUA_INCLUDE_DIR})
 
+# Lua
+find_package(SmallSHA1 REQUIRED)
+set(OWL_DEPENDENCIES ${OWL_DEPENDENCIES} ${SMALLSHA1_LIBRARIES})
+set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${SMALLSHA1_INCLUDE_DIR})
+
 ############################################
 # owl source
 ############################################
