@@ -45,8 +45,6 @@
 
 #endif
 
-#include <owl/data/bimap.hpp>
-
 namespace {
     const std::string _loggerCat = "SignalHandler";
 }
