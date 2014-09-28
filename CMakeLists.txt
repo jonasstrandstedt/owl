@@ -69,3 +69,9 @@ endif(MSVC)
 
 include_directories(${OWL_INCLUDE_DIRS})
 target_link_libraries(owl_demo owl )
+
+############################################
+# Pass variables to parent
+############################################
+set(OWL_LIBRARIES ${OWL_LIBRARIES} PARENT_SCOPE)
+set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} PARENT_SCOPE)
