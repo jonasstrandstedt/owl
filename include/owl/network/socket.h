@@ -63,10 +63,12 @@ typedef char SocketData_t;
 
 namespace owl {
 class TCPSocketConnection;
+class TCPClient;
 typedef std::function<void(TCPSocketConnection*)>                           OpenCallback_t;
 typedef std::function<void(TCPSocketConnection*, int, const SocketData_t*)> ReadCallback_t;
 typedef std::function<void(TCPSocketConnection*)>                           CloseCallback_t;
 typedef std::function<void(int, const SocketData_t*)>                       ClientReadCallback_t;
+typedef std::function<void(const TCPClient*)>                               ClientCloseCallback_t;
 
 bool NetworkIsInitialized();
 bool NetworkInitialize();

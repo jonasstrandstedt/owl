@@ -33,25 +33,9 @@ namespace owl {
 template <class T>
 class Singleton {
 public:
-    template <typename... Args>
-    static void initialize(Args... args) {
-        assert( ! isInitialized());
-        _instance = new T(std::forward<Args>(args)...);
-    }
-    
-    static void deinitialize() {
-        assert(isInitialized());
-        delete _instance;
-        _instance = nullptr;
-    }
-    
-    static bool isInitialized() {
-        return _instance != nullptr;
-    }
-    
     static T& ref() {
-        assert(isInitialized());
-        return *_instance;
+        static T _singleton;
+        return _singleton;
     }
 protected:
     Singleton() {};
@@ -60,16 +44,11 @@ protected:
 private:
 
     // protecting against evil
-    Singleton(const Singleton&);
-    Singleton(const Singleton&&);
-    Singleton& operator= (const Singleton& rhs);
-    
-    // instance member
-    static T* _instance;
+    Singleton(const Singleton&) = delete;
+    Singleton(const Singleton&&) = delete;
+    Singleton& operator= (const Singleton& rhs) = delete;
     
 }; // Singleton
-
-template <class T> T* Singleton<T>::_instance = nullptr;
 
 } // owl
 #endif

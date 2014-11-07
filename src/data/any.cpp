@@ -33,6 +33,8 @@ Any::Any(Any&& that): ptr(that.ptr) {
 Any::Any(const Any& that): ptr(that.clone()) {}
 Any::Any(const Any&& that): ptr(that.clone()) {}
 
+Any::Any(const char* value): ptr(new Derived<StorageType<std::string>>(std::string(value))) {}
+
 Any& Any::operator=(const Any& a) {
     if (ptr == a.ptr)
         return *this;
@@ -62,11 +64,11 @@ Any::~Any() {
 }
 
 bool Any::is_null() const {
-    return !ptr;
+    return ptr == nullptr;
 }
 
 bool Any::not_null() const {
-    return ptr;
+    return ptr != nullptr;
 }
 
 Any::Base* Any::clone() const {

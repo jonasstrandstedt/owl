@@ -25,46 +25,9 @@
 // many owl stuff
 #include <owl/owl>
 
-// network
-#include <owl/network/tcpclient.h>
-#include <owl/network/tcpserver.h>
-#include <owl/network/tcpsocket.h>
-#include <owl/network/websocket.h>
-
-// std
-#include <limits>
-#include <condition_variable>
-
 namespace {
-    std::string _loggerCat = "Demo";
+    std::string _loggerCat = "demo_lua";
 }
-
-owl::ThreadSafeVector<owl::TCPSocketConnection*> _connections;
-//owl::ThreadSafeMap<owl::TCPSocketConnection*> _connectionsM;
-
-owl::OpenCallback_t o = [](owl::TCPSocketConnection* connection) {
-    LDEBUGCF("incoming","[%i] Open", connection->identifier());
-    _connections.push_back(connection);
-    
-    auto v = _connections.getVector();
-    LDEBUGC("incoming", "v.size(): " << v->size());
-};
-owl::CloseCallback_t c = [](owl::TCPSocketConnection* connection) {
-    LDEBUGCF("incoming","[%i] Close", connection->identifier());
-    _connections.remove(connection);
-    auto v = _connections.getVector();
-    LDEBUGC("incoming", "v.size(): " << v->size());
-};
-owl::ReadCallback_t r = [](owl::TCPSocketConnection* connection, int length, const SocketData_t* data) {
-    
-    // print
-    LDEBUGCF("incoming","[%i] Msg: '%s'", connection->identifier(), data);
-    
-    // respond
-    connection->write("hihi"); // websockets text message, tcp message
-    const char* d = "data";
-    connection->write(4, d);   // websockets data message, tcp message
-};
 
 int main(int argc, char** argv) {
 	owl::DefaultInitialize();
@@ -83,15 +46,12 @@ return {
 }
 )";
     
-    
     owl::Dictionary dict;
     owl::Lua lua;
     lua.loadStringIntoDictionary(str, dict);
     double p;
     if( ! dict.get("port", p))
         return EXIT_FAILURE;
-    
-    int port = static_cast<int>(p);
     
     std::string source = R"(
     function luafunc(a)
@@ -127,56 +87,6 @@ return {
     LDEBUG("return1: " << buffer);
     LDEBUG("return2: " << d);
 
-    
-    if(argc == 1) {
-        owl::TCPServer server(o, c, r);
-        
-        if ( ! server.initialize(port))
-            return 1;
-        
-        server.startAcceptIncoming<owl::WebSocket>();
-        //std::mutex m;
-        //std::condition_variable cv;
-        //
-        //std::string line;
-        //std::unique_lock<std::mutex> lk(m);
-        //owl::SignalHandler::SignalCallback sc = [&cv](owl::SignalHandler::Signal s) {
-        //    LDEBUGC("Signal", "Got:" << owl::SignalHandler::toString(s));
-        //    cv.notify_one();
-        //};
-        //int s = owl::SignalHandler::Signal::All;
-        //owl::SignalHandler::ref().setCallback(s,sc);
-        //cv.wait(lk);
-		std::string line;
-		std::getline(std::cin, line);
-        
-        LDEBUG("Stopping");
-        server.stopAcceptIncoming();
-        for(auto c: _connections) {
-            c->close();
-        }
-    } else {
-        owl::TCPClient client;
-        if( ! client.connectLocalhost(port))
-            return 1;
-        
-        owl::ClientReadCallback_t cc = [](int length, const SocketData_t* data) {
-            LDEBUG("server: " << data);
-        };
-        
-        client.listen(cc);
-        
-        std::string line;
-        while (std::getline(std::cin, line)) {
-            if (line == "q" || line == "quit")
-                break;
-            else {
-                client.write(line);
-            }
-        }
-        client.disconnect();
-    }
-    
     
 	LDEBUG("Done!");
 	owl::DefaultDeinitialize();

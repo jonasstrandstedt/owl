@@ -55,6 +55,10 @@ Dictionary::const_iterator Dictionary::end() const {
     return _map.end();
 }
 
+bool Dictionary::empty() const {
+    return _map.empty();
+}
+
 std::vector<std::string> Dictionary::keys() const {
     std::vector<std::string> keys;
     for(auto m: _map) {

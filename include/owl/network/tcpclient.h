@@ -42,7 +42,7 @@ public:
     bool connect(int p1,int p2,int p3,int p4, int port);
     void disconnect();
     
-    void listen(ClientReadCallback_t callback);
+    void listen(ClientReadCallback_t callback, ClientCloseCallback_t closeCallback);
     
     void write(int length, const char* data);
     void write(const std::string& data);
@@ -54,6 +54,7 @@ private:
 
     int _socket;
     ClientReadCallback_t _callback;
+    ClientCloseCallback_t _closeCallback;
     std::thread _listenerThread;
 };
 } // owl

@@ -26,13 +26,26 @@ cmake_minimum_required(VERSION 2.8)
 project(owl)
 
 ############################################
-# Settings
+# Meta-Settings
 ############################################
 if(NOT OWL_ROOT_DIR)
     set(OWL_ROOT_DIR ${PROJECT_SOURCE_DIR})
 endif(NOT OWL_ROOT_DIR)
 set(OWL_EXT_DIR "${OWL_ROOT_DIR}/ext")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${OWL_EXT_DIR})
+get_directory_property(hasParent PARENT_DIRECTORY)
+
+############################################
+# Settings
+############################################
+if(hasParent)
+	option(OWL_BUILD_DEMO "Build demo application" OFF)
+	option(OWL_BUILD_TEST "Build test application" OFF)
+else()
+	option(OWL_BUILD_DEMO "Build demo application" ON)
+	option(OWL_BUILD_TEST "Build test application" ON)
+endif()
+
 
 ############################################
 # Dependencies
@@ -47,10 +60,15 @@ find_package(Lua REQUIRED)
 set(OWL_DEPENDENCIES ${OWL_DEPENDENCIES} ${LUA_LIBRARIES})
 set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${LUA_INCLUDE_DIR})
 
-# Lua
+# SmallSHA1
 find_package(SmallSHA1 REQUIRED)
 set(OWL_DEPENDENCIES ${OWL_DEPENDENCIES} ${SMALLSHA1_LIBRARIES})
 set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${SMALLSHA1_INCLUDE_DIR})
+
+# Google Test
+find_package(GTest REQUIRED)
+set(OWL_DEPENDENCIES ${OWL_DEPENDENCIES} ${GTEST_LIBRARIES})
+set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${GTEST_INCLUDE_DIR})
 
 ############################################
 # owl source
@@ -58,20 +76,23 @@ set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} ${SMALLSHA1_INCLUDE_DIR})
 add_subdirectory(${OWL_ROOT_DIR}/src)
 
 ############################################
-# demo app
+# Demo app
 ############################################
-add_executable(owl_demo ${OWL_ROOT_DIR}/demo/demo.cpp)
-if(MSVC)
-	add_definitions(-D__WIN32__)
-else(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-endif(MSVC)
+if(OWL_BUILD_DEMO)
+	add_subdirectory(${OWL_ROOT_DIR}/demo)
+endif()
 
-include_directories(${OWL_INCLUDE_DIRS})
-target_link_libraries(owl_demo owl )
+############################################
+# Test app
+############################################
+if(OWL_BUILD_TEST)
+	add_subdirectory(${OWL_ROOT_DIR}/test)
+endif()
 
 ############################################
 # Pass variables to parent
 ############################################
-set(OWL_LIBRARIES ${OWL_LIBRARIES} PARENT_SCOPE)
-set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} PARENT_SCOPE)
+if(hasParent)
+	set(OWL_LIBRARIES ${OWL_LIBRARIES} PARENT_SCOPE)
+	set(OWL_INCLUDE_DIRS ${OWL_INCLUDE_DIRS} PARENT_SCOPE)
+endif()

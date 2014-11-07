@@ -22,59 +22,32 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __SIGNAL_H__
-#define __SIGNAL_H__
 
-#include <owl/designpattern/singleton.hpp>
+TEST(Dictionary, Empty) {
+    owl::Dictionary d;
+    EXPECT_EQ(d.empty(), true);
 
-#include <functional>
-#include <mutex>
-#include <array>
+    d.insert("key", "value");
+    EXPECT_EQ(d.empty(), false);
+}
 
-namespace owl {
+TEST(Dictionary, RecursiveInsert) {
+	std::string key = "key.key2.key3";
+    std::string value;
+    owl::Dictionary d;
+    owl::Dictionary d2;
+    
+    EXPECT_EQ(d.empty(), true);
 
-class SignalHandler: public Singleton<SignalHandler> {
-public:
-    
-    static const int NumberOfCallbacks = 9;
-    
-    enum Signal {
-        Hangup              = 1 << 0,
-        Abort               = 1 << 1,
-        Quit                = 1 << 2,
-        IllegalInstruction  = 1 << 3,
-        Interrupt           = 1 << 4,
-        Kill                = 1 << 5,
-        Terminate           = 1 << 6,
-        Stop                = 1 << 7,
-        TTYStop             = 1 << 8,
-        All                 =   Hangup | Abort | Quit | IllegalInstruction | Interrupt |
-                                Kill | Terminate | Stop | TTYStop
-    };
+    d.insert(key, "value");
+    EXPECT_EQ(d.empty(), false);
 
-    typedef std::function<void(Signal)> SignalCallback;
+    EXPECT_EQ(d.get(key, value), true);
+    EXPECT_EQ(value, "value");
 
-    SignalHandler();
-    ~SignalHandler();
-    
-    void setCallback(int signals, SignalCallback callback);
-    
-    static std::string toString(Signal signal);
-    static std::string toString(int signal);
-    
-    
-private:
-    friend void owl_signal_handler(int signo);
-    void call(int signo);
+    EXPECT_EQ(d.get("key", d2), true);
+    value = "";
+    EXPECT_EQ(d2.get("key2.key3", value), true);
+    EXPECT_EQ(value, "value");
 
-    std::mutex _lock;
-    
-    std::array<SignalCallback, NumberOfCallbacks> _callbacks;
-    
-    int signalnumber (Signal s);
-    int numberToSignalPosition (int signo);
-    
-}; // StreamLog
-}  // owl 
-
-#endif
+}

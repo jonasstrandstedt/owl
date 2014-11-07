@@ -48,9 +48,11 @@ public:
     Any(Any&& that);
     Any(const Any& that);
     Any(const Any&& that);
+    Any(const char* value) ;
     
     Any& operator=(const Any& a);
     Any& operator=(Any&& a);
+    //Any& operator=(const char* a);
     
     ~Any();
     
@@ -126,8 +128,8 @@ private:
     Base* clone() const;
     
     Base* ptr;
-};
+}; // Any
 
-}
+} // namespace owl
 
 #endif

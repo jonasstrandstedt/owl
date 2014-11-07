@@ -102,8 +102,10 @@ void TCPClient::disconnect() {
 #endif
 }
     
-void TCPClient::listen(ClientReadCallback_t callback) {
+void TCPClient::listen(ClientReadCallback_t callback,
+                       ClientCloseCallback_t closeCallback) {
     _callback = callback;
+    _closeCallback = closeCallback;
     _listenerThread = std::thread(listener, this);
     _listenerThread.detach();
 }
@@ -146,6 +148,8 @@ void TCPClient::listener(TCPClient* client) {
         client->_callback(length, buffer);
     }
     delete[] buffer;
-    LDEBUGC("TCPClient::listener", "Done..");
+    
+    if(client->_closeCallback)
+        client->_closeCallback(client);
 }
 }

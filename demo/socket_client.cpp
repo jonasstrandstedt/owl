@@ -22,59 +22,50 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __SIGNAL_H__
-#define __SIGNAL_H__
+// many owl stuff
+#include <owl/owl>
 
-#include <owl/designpattern/singleton.hpp>
+// network
+#include <owl/network/tcpclient.h>
 
-#include <functional>
-#include <mutex>
-#include <array>
+namespace {
+    std::string _loggerCat = "demo_socket_client";
+}
 
-namespace owl {
+int main(int argc, char** argv) {
+	owl::DefaultInitialize();
 
-class SignalHandler: public Singleton<SignalHandler> {
-public:
+    const size_t port = 22222;
+
+    owl::TCPClient client;
+    if( ! client.connectLocalhost(port))
+        return 1;
     
-    static const int NumberOfCallbacks = 9;
+    bool open = true;
     
-    enum Signal {
-        Hangup              = 1 << 0,
-        Abort               = 1 << 1,
-        Quit                = 1 << 2,
-        IllegalInstruction  = 1 << 3,
-        Interrupt           = 1 << 4,
-        Kill                = 1 << 5,
-        Terminate           = 1 << 6,
-        Stop                = 1 << 7,
-        TTYStop             = 1 << 8,
-        All                 =   Hangup | Abort | Quit | IllegalInstruction | Interrupt |
-                                Kill | Terminate | Stop | TTYStop
+    owl::ClientReadCallback_t cc = [](int length, const SocketData_t* data) {
+        LDEBUG("server: " << data);
     };
+    
+    owl::ClientCloseCallback_t ccc = [&open] (const owl::TCPClient* client) {
+        open = false;
+    };
+    
+    client.listen(cc, ccc);
+    
+    std::string line;
+    while (std::getline(std::cin, line) && open) {
+        if (line == "q" || line == "quit")
+            break;
+        else {
+            client.write(line);
+        }
+    }
+    client.disconnect();
+    
+	owl::DefaultDeinitialize();
+    
+    return 0;
+}
 
-    typedef std::function<void(Signal)> SignalCallback;
 
-    SignalHandler();
-    ~SignalHandler();
-    
-    void setCallback(int signals, SignalCallback callback);
-    
-    static std::string toString(Signal signal);
-    static std::string toString(int signal);
-    
-    
-private:
-    friend void owl_signal_handler(int signo);
-    void call(int signo);
-
-    std::mutex _lock;
-    
-    std::array<SignalCallback, NumberOfCallbacks> _callbacks;
-    
-    int signalnumber (Signal s);
-    int numberToSignalPosition (int signo);
-    
-}; // StreamLog
-}  // owl 
-
-#endif

@@ -22,59 +22,17 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __SIGNAL_H__
-#define __SIGNAL_H__
+#include <gtest/gtest.h>
 
-#include <owl/designpattern/singleton.hpp>
+#include <owl/data/any.h>
+#include <owl/data/dictionary.h>
+#include <owl/data/typeinfo.h>
 
-#include <functional>
-#include <mutex>
-#include <array>
+#include "test_any.inl"
+#include "test_dictionary.inl"
+#include "test_typeinfo.inl"
 
-namespace owl {
-
-class SignalHandler: public Singleton<SignalHandler> {
-public:
-    
-    static const int NumberOfCallbacks = 9;
-    
-    enum Signal {
-        Hangup              = 1 << 0,
-        Abort               = 1 << 1,
-        Quit                = 1 << 2,
-        IllegalInstruction  = 1 << 3,
-        Interrupt           = 1 << 4,
-        Kill                = 1 << 5,
-        Terminate           = 1 << 6,
-        Stop                = 1 << 7,
-        TTYStop             = 1 << 8,
-        All                 =   Hangup | Abort | Quit | IllegalInstruction | Interrupt |
-                                Kill | Terminate | Stop | TTYStop
-    };
-
-    typedef std::function<void(Signal)> SignalCallback;
-
-    SignalHandler();
-    ~SignalHandler();
-    
-    void setCallback(int signals, SignalCallback callback);
-    
-    static std::string toString(Signal signal);
-    static std::string toString(int signal);
-    
-    
-private:
-    friend void owl_signal_handler(int signo);
-    void call(int signo);
-
-    std::mutex _lock;
-    
-    std::array<SignalCallback, NumberOfCallbacks> _callbacks;
-    
-    int signalnumber (Signal s);
-    int numberToSignalPosition (int signo);
-    
-}; // StreamLog
-}  // owl 
-
-#endif
+int main(int argc, char** argv) {
+	testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
+}

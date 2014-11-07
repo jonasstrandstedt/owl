@@ -27,18 +27,23 @@
 namespace owl {
 
 void DefaultInitialize() {
+    owl::LogManager::ref().addLogger(new owl::StreamLog(std::cout));
+/*
     owl::LogManager::initialize();
     owl::LogManager::ref().addLogger(new owl::StreamLog(std::cout));
     owl::Filesystem::initialize();
     owl::SignalHandler::initialize();
 	owl::NetworkInitialize();
+*/
 }
 
 void DefaultDeinitialize() {
+/*
 	owl::NetworkDeinitialize();
     owl::SignalHandler::deinitialize();
 	owl::Filesystem::deinitialize();
     owl::LogManager::deinitialize();
+    */
 }
 
 } // owl

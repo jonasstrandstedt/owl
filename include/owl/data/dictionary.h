@@ -54,6 +54,8 @@ public:
     
     iterator end();
     const_iterator end() const;
+
+    bool empty() const;
     
     std::vector<std::string> keys() const;
 

@@ -33,47 +33,37 @@
 
 #define LDEBUGC(__category__, __message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Debug, __category__, ss.str());\
-        }\
     } while(false)
 
 #define LINFOC(__category__, __message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Info, __category__, ss.str());\
-        }\
     } while(false)
 
 #define LWARNINGC(__category__, __message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Warning, __category__, ss.str());\
-        }\
     } while(false)
 
 #define LERRORC(__category__, __message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Error, __category__, ss.str());\
-        }\
     } while(false)
 
 #define LFATALC(__category__, __message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Fatal, __category__, ss.str());\
-        }\
     } while(false)
 
 
@@ -84,47 +74,37 @@
 
 #define LDEBUG(__message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Debug, _loggerCat, ss.str());\
-        }\
     } while(false)
 
 #define LINFO(__message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Info, _loggerCat, ss.str());\
-        }\
     } while(false)
 
 #define LWARNING(__message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Warning, _loggerCat, ss.str());\
-        }\
     } while(false)
 
 #define LERROR(__message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Error, _loggerCat, ss.str());\
-        }\
     } while(false)
 
 #define LFATAL(__message__) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             std::stringstream ss;\
             ss << __message__;\
             owl::LogManager::ref().log(owl::Log::LogLevel::Fatal, _loggerCat, ss.str());\
-        }\
     } while(false)
 
 
@@ -201,62 +181,52 @@
 
 #define LDEBUGF(__format__ ,...) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             char buffer [OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE];\
             memset(buffer,0,OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE);\
             int n;\
             n = sprintf (buffer, __format__, __VA_ARGS__);\
             if(n >= 0)\
             owl::LogManager::ref().log(owl::Log::LogLevel::Debug, _loggerCat, buffer);\
-        }\
     } while(false)
 
 #define LINFOF(__format__ ,...) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             char buffer [OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE];\
             memset(buffer,0,OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE);\
             int n;\
             n = sprintf (buffer, __format__, __VA_ARGS__);\
             if(n >= 0)\
             owl::LogManager::ref().log(owl::Log::LogLevel::Info, _loggerCat, buffer);\
-        }\
     } while(false)
 
 #define LWARNINGF(__format__ ,...) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             char buffer [OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE];\
             memset(buffer,0,OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE);\
             int n;\
             n = sprintf (buffer, __format__, __VA_ARGS__);\
             if(n >= 0)\
             owl::LogManager::ref().log(owl::Log::LogLevel::Warning, _loggerCat, buffer);\
-        }\
     } while(false)
 
 #define LERRORF(__format__ ,...) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             char buffer [OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE];\
             memset(buffer,0,OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE);\
             int n;\
             n = sprintf (buffer, __format__, __VA_ARGS__);\
             if(n >= 0)\
             owl::LogManager::ref().log(owl::Log::LogLevel::Error, _loggerCat, buffer);\
-        }\
     } while(false)
 
 #define LFATALF(__format__ ,...) \
     do {\
-        if(owl::LogManager::isInitialized()) {\
             char buffer [OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE];\
             memset(buffer,0,OWL_LOGMANAGER_SPRINTF_BUFFER_SIZE);\
             int n;\
             n = sprintf (buffer, __format__, __VA_ARGS__);\
             if(n >= 0)\
             owl::LogManager::ref().log(owl::Log::LogLevel::Fatal, _loggerCat, buffer);\
-        }\
     } while(false)
 
 #endif

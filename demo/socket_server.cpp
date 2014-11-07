@@ -22,59 +22,71 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __SIGNAL_H__
-#define __SIGNAL_H__
+// many owl stuff
+#include <owl/owl>
 
-#include <owl/designpattern/singleton.hpp>
+// network
+#include <owl/network/tcpserver.h>
+#include <owl/network/tcpsocket.h>
+#include <owl/network/websocket.h>
 
-#include <functional>
-#include <mutex>
-#include <array>
+namespace {
+    std::string _loggerCat = "demo_socket_server";
+}
 
-namespace owl {
+owl::ThreadSafeVector<owl::TCPSocketConnection*> _connections;
 
-class SignalHandler: public Singleton<SignalHandler> {
-public:
+owl::OpenCallback_t o = [](owl::TCPSocketConnection* connection) {
+    LDEBUGF("[%i] Open", connection->identifier());
+    _connections.push_back(connection);
+};
+owl::CloseCallback_t c = [](owl::TCPSocketConnection* connection) {
+    LDEBUGF("[%i] Close", connection->identifier());
+    _connections.remove(connection);
+    auto v = _connections.getVector();
+    LDEBUG("v.size(): " << v->size());
+};
+owl::ReadCallback_t r = [](owl::TCPSocketConnection* connection, int length, const SocketData_t* data) {
     
-    static const int NumberOfCallbacks = 9;
+    // print
+    LDEBUGF("[%i] Msg: '%s'", connection->identifier(), data);
     
-    enum Signal {
-        Hangup              = 1 << 0,
-        Abort               = 1 << 1,
-        Quit                = 1 << 2,
-        IllegalInstruction  = 1 << 3,
-        Interrupt           = 1 << 4,
-        Kill                = 1 << 5,
-        Terminate           = 1 << 6,
-        Stop                = 1 << 7,
-        TTYStop             = 1 << 8,
-        All                 =   Hangup | Abort | Quit | IllegalInstruction | Interrupt |
-                                Kill | Terminate | Stop | TTYStop
-    };
+    // respond
+    connection->write("Ping"); // websockets text message, tcp message
+    const char* d = "Pong";
+    connection->write(4, d);   // websockets data message, tcp message
+};
 
-    typedef std::function<void(Signal)> SignalCallback;
+int main(int argc, char** argv) {
+	owl::DefaultInitialize();
 
-    SignalHandler();
-    ~SignalHandler();
     
-    void setCallback(int signals, SignalCallback callback);
+    const size_t port = 22222;
+    const size_t websocket_port = 33333;
     
-    static std::string toString(Signal signal);
-    static std::string toString(int signal);
+    owl::TCPServer server(o, c, r);
+    owl::TCPServer websocket_server(o, c, r);
     
+    if ( ! server.initialize(port))
+        return 1;
+    if ( ! websocket_server.initialize(websocket_port))
+        return 1;
     
-private:
-    friend void owl_signal_handler(int signo);
-    void call(int signo);
+    server.startAcceptIncoming<owl::TCPSocket>();
+    websocket_server.startAcceptIncoming<owl::WebSocket>();
+    std::string line;
+    std::getline(std::cin, line);
+    
+    LDEBUG("Stopping");
+    server.stopAcceptIncoming();
+    websocket_server.stopAcceptIncoming();
+    for(auto c: _connections) {
+        c->close();
+    }
 
-    std::mutex _lock;
+	owl::DefaultDeinitialize();
     
-    std::array<SignalCallback, NumberOfCallbacks> _callbacks;
-    
-    int signalnumber (Signal s);
-    int numberToSignalPosition (int signo);
-    
-}; // StreamLog
-}  // owl 
+    return 0;
+}
 
-#endif
+
