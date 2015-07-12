@@ -49,6 +49,4 @@ endif(MSVC)
 
 add_demo(socket_server socket_server.cpp)
 add_demo(socket_client socket_client.cpp)
-add_demo(lua lua.cpp)
-
-
+add_demo(lua           lua.cpp)

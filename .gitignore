@@ -28,3 +28,4 @@ build/*
 # files created by tests
 binary.bin
 binaryCompressed.bin
+bin/*

@@ -26,9 +26,7 @@
 
 namespace owl {
 
-LogManager::LogManager() {
-    
-}
+LogManager::LogManager() {}
     
 LogManager::~LogManager() {
     for(auto logger: _loggers) {
@@ -46,4 +44,4 @@ void LogManager::log(Log::LogLevel level, const std::string& category, const std
     }
 }
 
-}
+} // namespace owl

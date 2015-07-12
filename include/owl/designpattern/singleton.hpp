@@ -25,9 +25,6 @@
 #ifndef __SINGLETON_H__
 #define __SINGLETON_H__
 
-#include <iostream>
-#include <cassert>
-
 namespace owl {
 
 template <class T>

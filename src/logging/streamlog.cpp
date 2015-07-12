@@ -50,7 +50,11 @@ StreamLog::StreamLog(std::ostream& stream, LogLevel level): Log(level), _stream(
 
 StreamLog::~StreamLog() {}
 
-void StreamLog::log(Log::LogLevel level, const std::string& category, const std::string& message) {
+void StreamLog::log(
+    Log::LogLevel level, 
+    const std::string& category, 
+    const std::string& message) 
+{
     if (level >= _level) {
         
         if(_logBits & Log::LogBits::TimeStampBit) {
@@ -77,4 +81,4 @@ void StreamLog::log(Log::LogLevel level, const std::string& category, const std:
     }
 }
 
-} // owl
+} // namespace owl

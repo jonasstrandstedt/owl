@@ -32,7 +32,6 @@ namespace {
 int main(int argc, char** argv) {
 	owl::DefaultInitialize();
 
-
     std::string dir = "";
     if(FileSys.findFile("CMakeLists.txt", dir)) {
         FileSys.registerToken("${BASE_PATH}", dir);
@@ -89,6 +88,8 @@ return {
 
     
 	LDEBUG("Done!");
+    
+    
 	owl::DefaultDeinitialize();
     
     return 0;

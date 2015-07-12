@@ -23,10 +23,9 @@
  ****************************************************************************************/
 
 #include <owl/lua/lua.h>
-
+#include <owl/filesystem/filesystem.h>
 
 #include <cmath>
-#include <owl/filesystem/filesystem.h>
 
 namespace {
     

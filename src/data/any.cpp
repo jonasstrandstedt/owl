@@ -27,13 +27,18 @@
 namespace owl {
 
 Any::Any(Any& that): ptr(that.clone()) {}
+
 Any::Any(Any&& that): ptr(that.ptr) {
     that.ptr = nullptr;
 }
+
 Any::Any(const Any& that): ptr(that.clone()) {}
+
 Any::Any(const Any&& that): ptr(that.clone()) {}
 
-Any::Any(const char* value): ptr(new Derived<StorageType<std::string>>(std::string(value))) {}
+Any::Any(const char* value)
+    : ptr(new Derived<StorageType<std::string> >(std::string(value)))
+{}
 
 Any& Any::operator=(const Any& a) {
     if (ptr == a.ptr)
@@ -83,11 +88,5 @@ std::string Any::typeName() const {
         return ptr->name();
     return "nullptr";
 }
-
-size_t Any::typeHashCode() const {
-    if(ptr)
-        return ptr->hash_code();
-    return 0;
-}
     
-}
+} // namespace owl

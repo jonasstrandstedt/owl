@@ -27,9 +27,13 @@
 
 namespace owl {
     
-Log::Log(LogLevel level): _level(level), _timeFormat("%Y-%m-%d %H:%M:%S"), _logBits(LogBits::AllBit) {}
-Log::~Log() {}
+Log::Log(LogLevel level)
+    : _level(level)
+    , _timeFormat("%Y-%m-%d %H:%M:%S")
+    , _logBits(LogBits::AllBit) 
+{}
 
+Log::~Log() {}
 
 void Log::setTimeFormat(const std::string& format) {
     _timeFormat = format;

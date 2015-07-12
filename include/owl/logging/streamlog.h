@@ -26,9 +26,11 @@
 #define __STREAMLOG_H__
 
 #include <owl/logging/log.h>
+
 #include <ostream>
 
 namespace owl {
+
 class StreamLog: public Log {
 public:
     
@@ -37,7 +39,6 @@ public:
     
     virtual void log(Log::LogLevel level, const std::string& category, const std::string& message);
     
-
 protected:
 	std::ostream& _stream;
 
