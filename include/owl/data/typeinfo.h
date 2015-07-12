@@ -27,25 +27,10 @@
 
 #include <typeinfo>
 #include <string>
-#include <vector>
 
 namespace owl {
 
-class Log;
-class LogManager;
-class StreamLog;
-class Time;
-class Timer;
 class Any;
-class Dictionary;
-class Socket;
-class TCPClient;
-class TCPServer;
-class TCPSocket;
-class TCPSocketConnection;
-class Websocket;
-class Lua;
-class Filesystem;
 
 class TypeInfo {
 public:
@@ -53,76 +38,19 @@ public:
     // unknown type
     template<class T>
     static std::string name() {
-        return std::string(typeid(T).name());
+        return demangle(typeid(T).name());
     }
     
     // unknown type
     template<class T>
     static std::string name(const T& val) {
-        return name<T>();
+        return demangle(typeid(val).name());
     }
+
+private:
+    static std::string demangle(const char* name);
     
 }; // TypeInfo
-
-#define TYPEINFO_NAME_DECLARATION(class_name) \
-    template<>std::string TypeInfo::name<class_name>(); \
-    template<>std::string TypeInfo::name<class_name*>(); \
-    template<>std::string TypeInfo::name<const class_name>(); \
-    template<>std::string TypeInfo::name<const class_name*>(); \
-    template<>std::string TypeInfo::name<std::vector<class_name> >(); \
-    template<>std::string TypeInfo::name<std::vector<class_name*> >(); \
-    template<>std::string TypeInfo::name<std::vector<class_name>*>(); \
-    template<>std::string TypeInfo::name<std::vector<class_name*>*>(); \
-    template<>std::string TypeInfo::name<std::vector<const class_name> >(); \
-    template<>std::string TypeInfo::name<std::vector<const class_name*> >(); \
-    template<>std::string TypeInfo::name<std::vector<const class_name>*>(); \
-    template<>std::string TypeInfo::name<std::vector<const class_name*>*>(); \
-    template<>std::string TypeInfo::name<const std::vector<class_name> >(); \
-    template<>std::string TypeInfo::name<const std::vector<class_name*> >(); \
-    template<>std::string TypeInfo::name<const std::vector<class_name>*>(); \
-    template<>std::string TypeInfo::name<const std::vector<class_name*>*>(); \
-    template<>std::string TypeInfo::name<const std::vector<const class_name> >(); \
-    template<>std::string TypeInfo::name<const std::vector<const class_name*> >(); \
-    template<>std::string TypeInfo::name<const std::vector<const class_name>*>(); \
-    template<>std::string TypeInfo::name<const std::vector<const class_name*>*>();
-    
-
-
-// Fundamental types
-TYPEINFO_NAME_DECLARATION(std::nullptr_t)
-TYPEINFO_NAME_DECLARATION(char)
-TYPEINFO_NAME_DECLARATION(bool)
-TYPEINFO_NAME_DECLARATION(short)
-TYPEINFO_NAME_DECLARATION(int)
-TYPEINFO_NAME_DECLARATION(long)
-TYPEINFO_NAME_DECLARATION(long long)
-TYPEINFO_NAME_DECLARATION(float)
-TYPEINFO_NAME_DECLARATION(double)
-TYPEINFO_NAME_DECLARATION(long double)
-TYPEINFO_NAME_DECLARATION(unsigned char)
-TYPEINFO_NAME_DECLARATION(unsigned short)
-TYPEINFO_NAME_DECLARATION(unsigned int)
-TYPEINFO_NAME_DECLARATION(unsigned long)
-TYPEINFO_NAME_DECLARATION(unsigned long long)
-TYPEINFO_NAME_DECLARATION(signed char)
-TYPEINFO_NAME_DECLARATION(std::string)
-
-// owl classes
-TYPEINFO_NAME_DECLARATION(Log)
-TYPEINFO_NAME_DECLARATION(LogManager)
-TYPEINFO_NAME_DECLARATION(StreamLog)
-TYPEINFO_NAME_DECLARATION(Time)
-TYPEINFO_NAME_DECLARATION(Timer)
-TYPEINFO_NAME_DECLARATION(Any)
-TYPEINFO_NAME_DECLARATION(Dictionary)
-TYPEINFO_NAME_DECLARATION(Socket)
-TYPEINFO_NAME_DECLARATION(TCPClient)
-TYPEINFO_NAME_DECLARATION(TCPServer)
-TYPEINFO_NAME_DECLARATION(TCPSocket)
-TYPEINFO_NAME_DECLARATION(TCPSocketConnection)
-TYPEINFO_NAME_DECLARATION(Websocket)
-TYPEINFO_NAME_DECLARATION(Lua)
-TYPEINFO_NAME_DECLARATION(Filesystem)
 
 // Specials
 template<>std::string TypeInfo::name<Any>(const Any& val);

@@ -23,120 +23,36 @@
  ****************************************************************************************/
 
 #include <owl/data/typeinfo.h>
-
-#include <sstream>
 #include <owl/data/any.h>
-
-#define TYPEINFO_NAME_IMPLEMENTATION(class_name) \
-    template<>std::string TypeInfo::name<class_name>() { \
-        return #class_name; \
-    } \
-    template<>std::string TypeInfo::name<class_name*>() { \
-        return #class_name"*"; \
-    } \
-    template<>std::string TypeInfo::name<const class_name>() { \
-        return "const "#class_name; \
-    } \
-    template<>std::string TypeInfo::name<const class_name*>() { \
-        return "const "#class_name"*"; \
-    } \
-    template<>std::string TypeInfo::name<std::vector<class_name> >() { \
-        return "std::vector<"#class_name">";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<class_name*> >() { \
-        return "std::vector<"#class_name"*>";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<class_name>*>() { \
-        return "std::vector<"#class_name">*";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<class_name*>*>() { \
-        return "std::vector<"#class_name"*>*";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<const class_name> >() { \
-        return "std::vector<const "#class_name">";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<const class_name*> >() { \
-        return "std::vector<const "#class_name"*>";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<const class_name>*>() { \
-        return "std::vector<const "#class_name">*";\
-    } \
-    template<>std::string TypeInfo::name<std::vector<const class_name*>*>() { \
-        return "std::vector<const "#class_name"*>*";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<class_name> >() { \
-        return "const std::vector<"#class_name">";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<class_name*> >() { \
-        return "const std::vector<"#class_name"*>";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<class_name>*>() { \
-        return "const std::vector<"#class_name">*";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<class_name*>*>() { \
-        return "const std::vector<"#class_name"*>*";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<const class_name> >() { \
-        return "const std::vector<const "#class_name">";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<const class_name*> >() { \
-        return "const std::vector<const "#class_name"*>";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<const class_name>*>() { \
-        return "const std::vector<const "#class_name">*";\
-    } \
-    template<>std::string TypeInfo::name<const std::vector<const class_name*>*>() { \
-        return "const std::vector<const "#class_name"*>*";\
-    } \
-
+#include <cstdlib>
+#include <memory>
+#include <cxxabi.h>
 
 namespace owl {
 
-// Fundamental types
-TYPEINFO_NAME_IMPLEMENTATION(std::nullptr_t)
-TYPEINFO_NAME_IMPLEMENTATION(char)
-TYPEINFO_NAME_IMPLEMENTATION(bool)
-TYPEINFO_NAME_IMPLEMENTATION(short)
-TYPEINFO_NAME_IMPLEMENTATION(int)
-TYPEINFO_NAME_IMPLEMENTATION(long)
-TYPEINFO_NAME_IMPLEMENTATION(long long)
-TYPEINFO_NAME_IMPLEMENTATION(float)
-TYPEINFO_NAME_IMPLEMENTATION(double)
-TYPEINFO_NAME_IMPLEMENTATION(long double)
-TYPEINFO_NAME_IMPLEMENTATION(unsigned char)
-TYPEINFO_NAME_IMPLEMENTATION(unsigned short)
-TYPEINFO_NAME_IMPLEMENTATION(unsigned int)
-TYPEINFO_NAME_IMPLEMENTATION(unsigned long)
-TYPEINFO_NAME_IMPLEMENTATION(unsigned long long)
-TYPEINFO_NAME_IMPLEMENTATION(signed char)
-TYPEINFO_NAME_IMPLEMENTATION(std::string)
+std::string TypeInfo::demangle(const char* name) {
+    int status = -4; // some arbitrary value to eliminate the compiler warning
 
-// owl classes
-TYPEINFO_NAME_IMPLEMENTATION(owl::Log)
-TYPEINFO_NAME_IMPLEMENTATION(owl::LogManager)
-TYPEINFO_NAME_IMPLEMENTATION(owl::StreamLog)
-TYPEINFO_NAME_IMPLEMENTATION(owl::Time)
-TYPEINFO_NAME_IMPLEMENTATION(owl::Timer)
-TYPEINFO_NAME_IMPLEMENTATION(owl::Any)
-TYPEINFO_NAME_IMPLEMENTATION(owl::Dictionary)
-TYPEINFO_NAME_IMPLEMENTATION(owl::Socket)
-TYPEINFO_NAME_IMPLEMENTATION(owl::TCPClient)
-TYPEINFO_NAME_IMPLEMENTATION(owl::TCPServer)
-TYPEINFO_NAME_IMPLEMENTATION(owl::TCPSocket)
-TYPEINFO_NAME_IMPLEMENTATION(owl::TCPSocketConnection)
-TYPEINFO_NAME_IMPLEMENTATION(owl::Websocket)
-TYPEINFO_NAME_IMPLEMENTATION(owl::Lua)
-TYPEINFO_NAME_IMPLEMENTATION(owl::Filesystem)
+    // enable c++11 by passing the flag -std=c++11 to g++
+    std::unique_ptr<char, void(*)(void*)> res {
+        abi::__cxa_demangle(name, NULL, NULL, &status),
+        std::free
+    };
+
+    return (status == 0) ? res.get() : name;
+}
 
 // specials
 template<>std::string TypeInfo::name<Any>(const Any& val) {
     return "owl::Any<" + val.typeName()+ ">";
 }
+
 template<>std::string TypeInfo::name<std::pair<const std::string, Any> >() {
     return "std::pair<std::string, owl::Any>";
 }
+
 template<>std::string TypeInfo::name<std::pair<const std::string, Any> >(const std::pair<const std::string, Any>& val) {
     return "std::pair<std::string, " + TypeInfo::name(val.second) + ">";
 }
 
-}
+} // namespace owl
