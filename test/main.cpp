@@ -25,10 +25,14 @@
 #include <gtest/gtest.h>
 
 #include <owl/data/any.h>
+#include <owl/data/buffer.h>
+#include <owl/filesystem/binaryfile.h>
 #include <owl/data/dictionary.h>
 #include <owl/data/typeinfo.h>
 
 #include "test_any.inl"
+#include "test_buffer.inl"
+#include "test_binaryfile.inl"
 #include "test_dictionary.inl"
 #include "test_typeinfo.inl"
 

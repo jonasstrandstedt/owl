@@ -22,75 +22,64 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __ANY_H__
-#define __ANY_H__
+#ifndef __BUFFER_H__
+#define __BUFFER_H__
 
-#include <owl/data/typeinfo.h>
-
-#include <type_traits>
-#include <typeinfo>
 #include <string>
-#include <functional>
-
-template <class T>
-using StorageType = typename std::decay<T>::type;
+#include <owl/data/serializer.h>
+#include <iostream>
+#include <sstream>
 
 namespace owl {
 
-class Any {
+class Buffer {
 public:
-    
-    // Construct Any from any Any
-    Any() : ptr(nullptr) {}
-    Any(Any& that);
-    Any(Any&& that);
-    Any(const Any& that);
-    Any(const Any&& that);
-    Any(const char* value);
-    
-    Any& operator=(const Any& a);
-    Any& operator=(Any&& a);
-    
-    ~Any();
-    
-    bool is_null() const;
-    bool not_null() const;
-    
-    // Template functions
-    
-    // Construct Any from any type
-    template<typename U> Any(U&& value);
-    template<typename U> bool is() const;
-    template<typename U> StorageType<U>& as() const;
-    template<typename U> operator U();
-    template<typename U> bool get(U& v);
-    
-    std::string typeName() const;
-    
-private:
-    struct Base {
-        virtual ~Base() {}
-        virtual Base* clone() const = 0;
-        virtual std::string name() const = 0;
-    }; // Base
+
+    typedef Serializer::value_type value_type;
+    typedef Serializer::size_type size_type;
+
+    Buffer() = default;
+    ~Buffer() = default;
+
+    Buffer(const Buffer& other);
+    Buffer(Buffer&& other);
+    Buffer& operator=(const Buffer& rhs);
+    Buffer& operator=(Buffer&& rhs);
+
+    Buffer(const std::string& filename);
+
+    void reset();
+
+    bool write(const std::string& filename, bool compress = false);
+    bool read(const std::string& filename);
     
     template<typename T>
-    struct Derived : Base {
-        
-        T value;
-        
-        template<typename U> Derived(U&& value);
-        Base* clone() const;
-        std::string name() const;
-    }; // Derived
-    
-    Base* clone() const;
-    Base* ptr;
-    
-}; // Any
+    void serialize(const T& v);
+    void serialize(const char* data);
+    void serialize(const char* data, size_t size);
 
-#include <owl/data/any.inl>
+    template<typename T>
+    void deserialize(T& v);
+    void deserialize(char* data, size_t size);
 
-} // namespace owl
+private:
+
+    Buffer(size_t) = delete;
+
+    std::stringstream _stream;
+
+}; // class Buffer
+
+template<typename T>
+void Buffer::serialize(const T& v) {
+    Serializer::serialize(v, _stream);
+}
+
+template<typename T>
+void Buffer::deserialize(T& v) {
+    Serializer::deserialize(v, _stream);
+}
+
+} // namespace owl 
 
 #endif

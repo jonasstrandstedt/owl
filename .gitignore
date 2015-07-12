@@ -24,3 +24,7 @@
 build/*
 
 .DS_Store
+
+# files created by tests
+binary.bin
+binaryCompressed.bin

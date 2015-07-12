@@ -22,75 +22,30 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __ANY_H__
-#define __ANY_H__
-
-#include <owl/data/typeinfo.h>
-
-#include <type_traits>
-#include <typeinfo>
-#include <string>
-#include <functional>
-
-template <class T>
-using StorageType = typename std::decay<T>::type;
+#include <owl/data/serializer.h>
 
 namespace owl {
 
-class Any {
-public:
-    
-    // Construct Any from any Any
-    Any() : ptr(nullptr) {}
-    Any(Any& that);
-    Any(Any&& that);
-    Any(const Any& that);
-    Any(const Any&& that);
-    Any(const char* value);
-    
-    Any& operator=(const Any& a);
-    Any& operator=(Any&& a);
-    
-    ~Any();
-    
-    bool is_null() const;
-    bool not_null() const;
-    
-    // Template functions
-    
-    // Construct Any from any type
-    template<typename U> Any(U&& value);
-    template<typename U> bool is() const;
-    template<typename U> StorageType<U>& as() const;
-    template<typename U> operator U();
-    template<typename U> bool get(U& v);
-    
-    std::string typeName() const;
-    
-private:
-    struct Base {
-        virtual ~Base() {}
-        virtual Base* clone() const = 0;
-        virtual std::string name() const = 0;
-    }; // Base
-    
-    template<typename T>
-    struct Derived : Base {
-        
-        T value;
-        
-        template<typename U> Derived(U&& value);
-        Base* clone() const;
-        std::string name() const;
-    }; // Derived
-    
-    Base* clone() const;
-    Base* ptr;
-    
-}; // Any
+template<> 
+Serializer::size_type Serializer::size(const std::string& v) {
+    return sizeof(size_type) + v.length();
+}
 
-#include <owl/data/any.inl>
+template<>
+void Serializer::serialize(const std::string& v, std::ostream& out) {
+    const size_type length = v.length();
+    out.write(reinterpret_cast<const value_type*>(&length), sizeof(size_type));
+    out.write(v.c_str(), sizeof(value_type)*length);
+}
+
+template<>
+void Serializer::deserialize<std::string>(std::string& v, std::istream& src) {
+    size_type length;
+    src.read(reinterpret_cast<value_type*>(&length), sizeof(size_type));
+    std::vector<char> tmp(length);
+    src.read(tmp.data(), sizeof(char)*length);
+    v = std::string(reinterpret_cast<const char*>(tmp.data()), length);
+}
 
 } // namespace owl
 
-#endif

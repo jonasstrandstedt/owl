@@ -22,74 +22,73 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __ANY_H__
-#define __ANY_H__
+#ifndef __BINARYFILE_H__
+#define __BINARYFILE_H__
 
-#include <owl/data/typeinfo.h>
-
-#include <type_traits>
-#include <typeinfo>
+#include <owl/data/serializer.h>
+ 
+#include <iostream>
+#include <fstream>
 #include <string>
-#include <functional>
-
-template <class T>
-using StorageType = typename std::decay<T>::type;
 
 namespace owl {
 
-class Any {
+class BinaryFile {
 public:
+
+    enum class OpenMode {
+        In, Out, InOut
+    };
+
+    BinaryFile(const std::string& filename, OpenMode mode);
+    ~BinaryFile();
     
-    // Construct Any from any Any
-    Any() : ptr(nullptr) {}
-    Any(Any& that);
-    Any(Any&& that);
-    Any(const Any& that);
-    Any(const Any&& that);
-    Any(const char* value);
+    bool is_open() const;
+    operator bool() const;
     
-    Any& operator=(const Any& a);
-    Any& operator=(Any&& a);
+    void close();
     
-    ~Any();
+    void write(const char* s);
+    void write(const char* d, size_t length);
+    template<class T> void write(const T& v);
     
-    bool is_null() const;
-    bool not_null() const;
-    
-    // Template functions
-    
-    // Construct Any from any type
-    template<typename U> Any(U&& value);
-    template<typename U> bool is() const;
-    template<typename U> StorageType<U>& as() const;
-    template<typename U> operator U();
-    template<typename U> bool get(U& v);
-    
-    std::string typeName() const;
+    void read(char* d, size_t length);
+    template<class T> void read(T& v);
     
 private:
-    struct Base {
-        virtual ~Base() {}
-        virtual Base* clone() const = 0;
-        virtual std::string name() const = 0;
-    }; // Base
-    
-    template<typename T>
-    struct Derived : Base {
-        
-        T value;
-        
-        template<typename U> Derived(U&& value);
-        Base* clone() const;
-        std::string name() const;
-    }; // Derived
-    
-    Base* clone() const;
-    Base* ptr;
-    
-}; // Any
+    std::fstream _file;
+}; // class BinaryFile
 
-#include <owl/data/any.inl>
+class BinaryFileIn: public BinaryFile {
+public:
+    BinaryFileIn(const std::string& filename);
+    
+private:
+    void write(const char* s) = delete;
+    void write(const char* d, size_t length) = delete;
+    template<class T> void write(const T& v) = delete;
+    
+}; // class BinaryFileIn
+
+class BinaryFileOut: public BinaryFile {
+public:
+    BinaryFileOut(const std::string& filename);
+    
+private:
+    void read(char* d, size_t length) = delete;
+    template<class T> void read(T& v) = delete;
+    
+}; // class BinaryFileOut
+
+template<class T>
+void BinaryFile::write(const T& v) {
+    Serializer::serialize(v, _file);
+}
+
+template<class T>
+void BinaryFile::read(T& v) {
+    Serializer::deserialize(v, _file);
+}
 
 } // namespace owl
 

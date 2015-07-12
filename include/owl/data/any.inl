@@ -22,75 +22,60 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __ANY_H__
-#define __ANY_H__
+template<typename U>
+Any::Any(U&& value) : ptr(new Derived<StorageType<U>>(std::forward<U>(value))) {}
 
-#include <owl/data/typeinfo.h>
+template<typename U>
+bool Any::is() const {
+    typedef StorageType<U> T;
+    
+    auto derived = dynamic_cast<Derived<T>*> (ptr);
+    
+    return derived;
+}
 
-#include <type_traits>
-#include <typeinfo>
-#include <string>
-#include <functional>
+template<typename U>
+StorageType<U>& Any::as() const {
+    typedef StorageType<U> T;
+    
+    auto derived = dynamic_cast<Derived<T>*> (ptr);
+    
+    if (!derived)
+    throw std::bad_cast();
+    
+    return derived->value;
+}
 
-template <class T>
-using StorageType = typename std::decay<T>::type;
+template<typename U>
+Any::operator U() {
+    return as<StorageType<U>>();
+}
 
-namespace owl {
+template<typename U>
+bool Any::get(U& v) {
+    typedef StorageType<U> T;
+    
+    auto derived = dynamic_cast<Derived<T>*> (ptr);
+    
+    if (!derived)
+    return false;
+    
+    v = derived->value;
+    return true;
+}
 
-class Any {
-public:
-    
-    // Construct Any from any Any
-    Any() : ptr(nullptr) {}
-    Any(Any& that);
-    Any(Any&& that);
-    Any(const Any& that);
-    Any(const Any&& that);
-    Any(const char* value);
-    
-    Any& operator=(const Any& a);
-    Any& operator=(Any&& a);
-    
-    ~Any();
-    
-    bool is_null() const;
-    bool not_null() const;
-    
-    // Template functions
-    
-    // Construct Any from any type
-    template<typename U> Any(U&& value);
-    template<typename U> bool is() const;
-    template<typename U> StorageType<U>& as() const;
-    template<typename U> operator U();
-    template<typename U> bool get(U& v);
-    
-    std::string typeName() const;
-    
-private:
-    struct Base {
-        virtual ~Base() {}
-        virtual Base* clone() const = 0;
-        virtual std::string name() const = 0;
-    }; // Base
-    
-    template<typename T>
-    struct Derived : Base {
-        
-        T value;
-        
-        template<typename U> Derived(U&& value);
-        Base* clone() const;
-        std::string name() const;
-    }; // Derived
-    
-    Base* clone() const;
-    Base* ptr;
-    
-}; // Any
+template<typename T>
+template<typename U>
+Any::Derived<T>::Derived(U&& value)
+    : value(std::forward<U>(value))
+{}
 
-#include <owl/data/any.inl>
+template<typename T>
+Any::Base* Any::Derived<T>::clone() const {
+    return new Derived<T>(value);
+}
 
-} // namespace owl
-
-#endif
+template<typename T>
+std::string Any::Derived<T>::name() const {
+    return TypeInfo::name<T>();
+}

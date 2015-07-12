@@ -22,75 +22,42 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __ANY_H__
-#define __ANY_H__
+TEST(BinaryFile, InOut) {
 
-#include <owl/data/typeinfo.h>
+    owl::BinaryFile fileout("binary.bin", owl::BinaryFile::OpenMode::Out);
 
-#include <type_traits>
-#include <typeinfo>
-#include <string>
-#include <functional>
+    ASSERT_TRUE(fileout);
 
-template <class T>
-using StorageType = typename std::decay<T>::type;
+    std::string         s1, s2;
+    int                 i1, i2;
+    double              d1, d2;
+    unsigned long long  u1, u2;
+    
+    s1 = "string";
+    i1 = 42;
+    d1 = 123.456;
+    u1 = 123456789;
+    
+    fileout.write(s1);
+    fileout.write(i1);
+    fileout.write(d1);
+    fileout.write(u1);
+    
+    fileout.close();
 
-namespace owl {
+    owl::BinaryFile filein("binary.bin", owl::BinaryFile::OpenMode::In);
 
-class Any {
-public:
+    ASSERT_TRUE(filein);
     
-    // Construct Any from any Any
-    Any() : ptr(nullptr) {}
-    Any(Any& that);
-    Any(Any&& that);
-    Any(const Any& that);
-    Any(const Any&& that);
-    Any(const char* value);
-    
-    Any& operator=(const Any& a);
-    Any& operator=(Any&& a);
-    
-    ~Any();
-    
-    bool is_null() const;
-    bool not_null() const;
-    
-    // Template functions
-    
-    // Construct Any from any type
-    template<typename U> Any(U&& value);
-    template<typename U> bool is() const;
-    template<typename U> StorageType<U>& as() const;
-    template<typename U> operator U();
-    template<typename U> bool get(U& v);
-    
-    std::string typeName() const;
-    
-private:
-    struct Base {
-        virtual ~Base() {}
-        virtual Base* clone() const = 0;
-        virtual std::string name() const = 0;
-    }; // Base
-    
-    template<typename T>
-    struct Derived : Base {
-        
-        T value;
-        
-        template<typename U> Derived(U&& value);
-        Base* clone() const;
-        std::string name() const;
-    }; // Derived
-    
-    Base* clone() const;
-    Base* ptr;
-    
-}; // Any
+    filein.read(s2);
+    filein.read(i2);
+    filein.read(d2);
+    filein.read(u2);
 
-#include <owl/data/any.inl>
-
-} // namespace owl
-
-#endif
+    filein.close();
+    
+    EXPECT_EQ(s1, s2);
+    EXPECT_EQ(i1, i2);
+    EXPECT_EQ(d1, d2);
+    EXPECT_EQ(u1, u2);
+}
