@@ -41,18 +41,18 @@ StorageType<U>& Any::as() const {
     auto derived = dynamic_cast<Derived<T>*> (ptr);
     
     if (!derived)
-    throw std::bad_cast();
+        throw std::bad_cast();
     
     return derived->value;
 }
 
 template<typename U>
-Any::operator U() {
+Any::operator U() const{
     return as<StorageType<U>>();
 }
 
 template<typename U>
-bool Any::get(U& v) {
+bool Any::get(U& v) const {
     typedef StorageType<U> T;
     
     auto derived = dynamic_cast<Derived<T>*> (ptr);

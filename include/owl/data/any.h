@@ -31,6 +31,7 @@
 #include <typeinfo>
 #include <string>
 #include <functional>
+#include <iostream>
 
 template <class T>
 using StorageType = typename std::decay<T>::type;
@@ -62,12 +63,40 @@ public:
     template<typename U> Any(U&& value);
     template<typename U> bool is() const;
     template<typename U> StorageType<U>& as() const;
-    template<typename U> operator U();
-    template<typename U> bool get(U& v);
+    template<typename U> operator U() const;
+    template<typename U> bool get(U& v) const;
     
     std::string typeName() const;
+
+    static void serialize(const Any& v, std::ostream& out);
+    static void deserialize(Any& v, std::istream& src);
     
 private:
+
+    enum AnyTypeId {
+        Any_unsupported                 = 0,
+        Any_char                        = 1,
+        Any_char16_t                    = 2,
+        Any_char32_t                    = 3,
+        Any_wchar_t                     = 4,
+        Any_short                       = 5,
+        Any_int                         = 6,
+        Any_long_int                    = 7,
+        Any_long_long_int               = 8,
+        Any_unsigned_short              = 9,
+        Any_unsigned_int                = 10,
+        Any_unsigned_long_int           = 11,
+        Any_unsigned_long_long_int      = 12,
+        Any_float                       = 13,
+        Any_double                      = 14,
+        Any_long_double                 = 15,
+        Any_bool                        = 16,
+        Any_std_string                  = 17,
+        Any_Dictionary                  = 18
+    };
+
+    size_t type() const;
+
     struct Base {
         virtual ~Base() {}
         virtual Base* clone() const = 0;

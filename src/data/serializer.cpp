@@ -23,13 +23,10 @@
  ****************************************************************************************/
 
 #include <owl/data/serializer.h>
+#include <owl/data/any.h>
+#include <owl/data/dictionary.h>
 
 namespace owl {
-
-template<> 
-Serializer::size_type Serializer::size(const std::string& v) {
-    return sizeof(size_type) + v.length();
-}
 
 template<>
 void Serializer::serialize(const std::string& v, std::ostream& out) {
@@ -45,6 +42,46 @@ void Serializer::deserialize<std::string>(std::string& v, std::istream& src) {
     std::vector<char> tmp(length);
     src.read(tmp.data(), sizeof(char)*length);
     v = std::string(reinterpret_cast<const char*>(tmp.data()), length);
+}
+
+template<>
+void Serializer::serialize<Any>(const Any& v, std::ostream& out) {
+	Any::serialize(v, out);
+}
+
+template<>
+void Serializer::deserialize<Any>(Any& v, std::istream& src) {
+	Any::deserialize(v, src);
+}
+
+template<>
+void Serializer::serialize<Dictionary>(const Dictionary& v, std::ostream& out) {
+    const size_type length = v.keys().size();
+    out.write(reinterpret_cast<const value_type*>(&length), sizeof(size_type));
+
+    for(const auto& e: v) {
+    	const std::string& key = e.first;
+    	const owl::Any& value = e.second;
+
+    	serialize(key, out);
+    	serialize(value, out);
+    }
+}
+
+template<>
+void Serializer::deserialize<Dictionary>(Dictionary& v, std::istream& src) {
+    size_type length;
+    src.read(reinterpret_cast<value_type*>(&length), sizeof(size_type));
+    
+    for(size_t i = 0; i < length; ++i) {
+    	std::string key;
+    	owl::Any value;
+
+    	deserialize(key, src);
+    	deserialize(value, src);
+
+    	v.insert(key, value);
+    }
 }
 
 } // namespace owl

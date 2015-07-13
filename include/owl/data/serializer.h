@@ -31,14 +31,14 @@
 
 namespace owl {
 
+class Dictionary;
+class Any;
+
 class Serializer {
 public:
 
     typedef char value_type;
     typedef size_t size_type;
-
-    template<typename T> 
-    static size_type size(const T& v);
 
     template<typename T> 
     static void serialize(const T& v, std::ostream& out);
@@ -49,25 +49,22 @@ public:
     static void deserialize(T& v, std::istream& src);
     template<class T>
     static void deserialize(std::vector<T>& v, std::istream& src);
-
-private:
-    template<typename T> 
-    static size_type size(const std::vector<T>& v) = delete;
     
 }; // class Serializer
 
 // Specializations
-template<> 
-Serializer::size_type Serializer::size(const std::string& v);
 template<>
 void Serializer::serialize<std::string>(const std::string& v, std::ostream& out);
 template<>
 void Serializer::deserialize<std::string>(std::string& v, std::istream& src);
-
-template<typename T> 
-Serializer::size_type Serializer::size(const T&) {
-    return sizeof(T);
-}
+template<>
+void Serializer::serialize<Dictionary>(const Dictionary& v, std::ostream& out);
+template<>
+void Serializer::deserialize<Dictionary>(Dictionary& v, std::istream& src);
+template<>
+void Serializer::serialize<Any>(const Any& v, std::ostream& out);
+template<>
+void Serializer::deserialize<Any>(Any& v, std::istream& src);
 
 template<typename T> 
 void Serializer::serialize(const T& v, std::ostream& out) {

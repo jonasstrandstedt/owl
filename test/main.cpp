@@ -26,6 +26,7 @@
 
 #include <owl/data/any.h>
 #include <owl/data/buffer.h>
+#include <owl/data/serializer.h>
 #include <owl/filesystem/binaryfile.h>
 #include <owl/data/dictionary.h>
 #include <owl/data/typeinfo.h>
