@@ -22,10 +22,14 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
+#if !defined(__WIN32__)
+
 #include <owl/data/typeinfo.h>
 #include <owl/data/any.h>
+
 #include <cstdlib>
 #include <memory>
+
 #include <cxxabi.h>
 
 namespace owl {
@@ -42,17 +46,6 @@ std::string TypeInfo::demangle(const char* name) {
     return (status == 0) ? res.get() : name;
 }
 
-// specials
-template<>std::string TypeInfo::name<Any>(const Any& val) {
-    return "owl::Any<" + val.typeName()+ ">";
-}
-
-template<>std::string TypeInfo::name<std::pair<const std::string, Any> >() {
-    return "std::pair<std::string, owl::Any>";
-}
-
-template<>std::string TypeInfo::name<std::pair<const std::string, Any> >(const std::pair<const std::string, Any>& val) {
-    return "std::pair<std::string, " + TypeInfo::name(val.second) + ">";
-}
-
 } // namespace owl
+
+#endif // !defined(__WIN32__)

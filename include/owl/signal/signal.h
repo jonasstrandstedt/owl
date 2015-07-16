@@ -30,6 +30,7 @@
 #include <functional>
 #include <mutex>
 #include <array>
+#include <string>
 
 namespace owl {
 

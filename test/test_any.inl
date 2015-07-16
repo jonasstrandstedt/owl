@@ -60,11 +60,10 @@ TEST(Any, String) {
 }
 
 TEST(Any, TypeName) {
-    owl::Any a1;
-    owl::Any a2 = "string";
+    owl::Any a1 = 1;
+    const owl::Any& a2 = a1;
     EXPECT_EQ(owl::TypeInfo::name<owl::Any>(), "owl::Any");
-    EXPECT_EQ(owl::TypeInfo::name(a1), "owl::Any<nullptr>");
-    EXPECT_EQ(owl::TypeInfo::name(a2), "owl::Any<std::string>");
+    EXPECT_EQ(owl::TypeInfo::name(a2), "const owl::Any&");
 }
 
 TEST(Any, Type) {

@@ -44,3 +44,12 @@ TEST(TypeInfo, PointerTypes) {
     EXPECT_EQ(owl::TypeInfo::name<unsigned int*>(), "unsigned int*");
     EXPECT_EQ(owl::TypeInfo::name<unsigned long*>(), "unsigned long*");
 }
+
+TEST(TypeInfo, ReferenceTypes) {
+    int i = 0;
+    int& ir = i;
+    const int& cir = i;
+    
+    EXPECT_EQ(owl::TypeInfo::name(ir), "int&");
+    EXPECT_EQ(owl::TypeInfo::name(cir), "const int&");
+}

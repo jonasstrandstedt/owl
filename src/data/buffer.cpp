@@ -84,7 +84,7 @@ bool Buffer::write(const std::string& filename, bool compress) {
         value_type* compressedData = new value_type[size];
         int compressed_size = LZ4_compress(reinterpret_cast<const char*>(data),
                                            reinterpret_cast<char*>(compressedData),
-                                           size);
+                                           static_cast<int>(size));
         if (compressed_size <= 0) {
             delete[] compressedData;
             return false;

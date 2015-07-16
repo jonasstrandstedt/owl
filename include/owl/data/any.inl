@@ -64,6 +64,19 @@ bool Any::get(U& v) const {
     return true;
 }
 
+template<typename U>
+void Any::serialize(const Any& v, std::ostream& out) {
+    U value = v;
+    Serializer::serialize(value, out);
+}
+
+template<typename U>
+void Any::deserialize(Any& v, std::istream& src) {
+    U value;
+    Serializer::deserialize(value, src);
+    v = value;
+}
+
 template<typename T>
 template<typename U>
 Any::Derived<T>::Derived(U&& value)

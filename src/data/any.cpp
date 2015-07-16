@@ -24,7 +24,6 @@
 
 #include <owl/data/any.h>
 #include <owl/data/dictionary.h>
-#include <owl/data/serializer.h>
 
 namespace owl {
 
@@ -117,139 +116,53 @@ void Any::serialize(const Any& v, std::ostream& out) {
     size_t type = v.type();
     Serializer::serialize(type, out);
 
-    if(type == Any_char) {
-        char value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_char16_t) {
-        char16_t value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_char32_t) {
-        char32_t value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_wchar_t) {
-        wchar_t value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_short) {
-        short value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_int) {
-        int value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_long_int) {
-        long int value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_long_long_int) {
-        long long int value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_unsigned_short) {
-        unsigned short value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_unsigned_int) {
-        unsigned int value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_unsigned_long_int) {
-        unsigned long int value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_unsigned_long_long_int) {
-        unsigned long long int value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_float) {
-        float value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_double) {
-        double value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_long_double) {
-        long double value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_bool) {
-        bool value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_std_string) {
-        std::string value = v;
-        Serializer::serialize(value, out);
-    } else if(type == Any_Dictionary) {
-        Dictionary value = v;
-        Serializer::serialize(value, out);
+    if(type == Any_unsupported) {
+        return;
     }
+
+    if(type == Any_char)                         serialize<char>(v, out);
+    else if(type == Any_char16_t)                serialize<char16_t>(v, out);
+    else if(type == Any_char32_t)                serialize<char32_t>(v, out);
+    else if(type == Any_wchar_t)                 serialize<wchar_t>(v, out);
+    else if(type == Any_short)                   serialize<short>(v, out);
+    else if(type == Any_int)                     serialize<int>(v, out);
+    else if(type == Any_long_int)                serialize<long int>(v, out);
+    else if(type == Any_long_long_int)           serialize<long long int>(v, out);
+    else if(type == Any_unsigned_short)          serialize<unsigned short>(v, out);
+    else if(type == Any_unsigned_int)            serialize<unsigned int>(v, out);
+    else if(type == Any_unsigned_long_int)       serialize<unsigned long int>(v, out);
+    else if(type == Any_unsigned_long_long_int)  serialize<unsigned long long int>(v, out);
+    else if(type == Any_float)                   serialize<float>(v, out);
+    else if(type == Any_double)                  serialize<double>(v, out);
+    else if(type == Any_long_double)             serialize<long double>(v, out);
+    else if(type == Any_bool)                    serialize<bool>(v, out);
+    else if(type == Any_std_string)              serialize<std::string>(v, out);
+    else if(type == Any_Dictionary)              serialize<Dictionary>(v, out);
+    
 }
 
 void Any::deserialize(Any& v, std::istream& src) {
     size_t type;
     Serializer::deserialize(type, src);
-    if(type == Any_char) {
-        char value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_char16_t) {
-        char16_t value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_char32_t) {
-        char32_t value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_wchar_t) {
-        wchar_t value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_short) {
-        short value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_int) {
-        int value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_long_int) {
-        long int value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_long_long_int) {
-        long long int value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_unsigned_short) {
-        unsigned short value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_unsigned_int) {
-        unsigned int value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_unsigned_long_int) {
-        unsigned long int value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_unsigned_long_long_int) {
-        unsigned long long int value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_float) {
-        float value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_double) {
-        double value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_long_double) {
-        long double value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_bool) {
-        bool value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_std_string) {
-        std::string value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else if(type == Any_Dictionary) {
-        Dictionary value;
-        Serializer::deserialize(value, src);
-        v = value;
-    } else {
+    if(type == Any_char)                         deserialize<char>(v, src);
+    else if(type == Any_char16_t)                deserialize<char16_t>(v, src);
+    else if(type == Any_char32_t)                deserialize<char32_t>(v, src);
+    else if(type == Any_wchar_t)                 deserialize<wchar_t>(v, src);
+    else if(type == Any_short)                   deserialize<short>(v, src);
+    else if(type == Any_int)                     deserialize<int>(v, src);
+    else if(type == Any_long_int)                deserialize<long int>(v, src);
+    else if(type == Any_long_long_int)           deserialize<long long int>(v, src);
+    else if(type == Any_unsigned_short)          deserialize<unsigned short>(v, src);
+    else if(type == Any_unsigned_int)            deserialize<unsigned int>(v, src);
+    else if(type == Any_unsigned_long_int)       deserialize<unsigned long int>(v, src);
+    else if(type == Any_unsigned_long_long_int)  deserialize<unsigned long long int>(v, src);
+    else if(type == Any_float)                   deserialize<float>(v, src);
+    else if(type == Any_double)                  deserialize<double>(v, src);
+    else if(type == Any_long_double)             deserialize<long double>(v, src);
+    else if(type == Any_bool)                    deserialize<bool>(v, src);
+    else if(type == Any_std_string)              deserialize<std::string>(v, src);
+    else if(type == Any_Dictionary)              deserialize<Dictionary>(v, src);
+    else {
         // Unsupported type
         v = Any();
     }

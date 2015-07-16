@@ -30,33 +30,49 @@
 
 namespace owl {
 
-class Any;
-
 class TypeInfo {
 public:
     
-    // unknown type
-    template<class T>
-    static std::string name() {
-        return demangle(typeid(T).name());
-    }
-    
-    // unknown type
-    template<class T>
-    static std::string name(const T& val) {
-        return demangle(typeid(val).name());
-    }
+    template<typename T>
+    static std::string name();
+    template<typename T>
+    static std::string name(T&& val);
 
 private:
+#if !defined(__WIN32__)
     static std::string demangle(const char* name);
-    
+#endif
 }; // TypeInfo
 
-// Specials
-template<>std::string TypeInfo::name<Any>(const Any& val);
-template<>std::string TypeInfo::name<std::pair<const std::string, Any> >();
-template<>std::string TypeInfo::name<std::pair<const std::string, Any> >(const std::pair<const std::string, Any>& val);
+template<typename T>
+std::string TypeInfo::name(T&& val) {
+    return name<T>();
+}
 
-}  // owl
-
+template<typename T>
+std::string TypeInfo::name() {
+        
+    typedef typename std::remove_reference<T>::type TR;
+        
+    std::string r;
+        
+    if (std::is_const<TR>::value)
+        r += "const ";
+    if (std::is_volatile<TR>::value)
+        r += "volatile ";
+#if !defined(__WIN32__)
+    r += demangle(typeid(T).name());
+#else
+    r += typeid(T).name();
 #endif
+    if (std::is_lvalue_reference<T>::value)
+        r += "&";
+    else if (std::is_rvalue_reference<T>::value)
+        r += "&&";
+        
+    return r;
+}
+
+} // namespace owl
+
+#endif // __THREADSAFEMAP_H__

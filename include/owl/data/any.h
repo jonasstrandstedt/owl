@@ -26,6 +26,7 @@
 #define __ANY_H__
 
 #include <owl/data/typeinfo.h>
+#include <owl/data/serializer.h>
 
 #include <type_traits>
 #include <typeinfo>
@@ -72,6 +73,11 @@ public:
     static void deserialize(Any& v, std::istream& src);
     
 private:
+
+    template<typename U>
+    static void serialize(const Any& v, std::ostream& out);
+    template<typename U>
+    static void deserialize(Any& v, std::istream& src);
 
     enum AnyTypeId {
         Any_unsupported                 = 0,
