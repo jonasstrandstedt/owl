@@ -167,3 +167,116 @@ TEST(Any, Type) {
     EXPECT_EQ(a8.is<const char*>(), 		false);
     EXPECT_EQ(a8.is<std::string>(), 		true);
 }
+
+TEST(Any, Serializing) {
+
+    typedef struct {
+        int i;
+    } SpecialType;
+
+    SpecialType st;
+    st.i = 1;
+    int i = 1;
+
+    owl::Any a0;
+    owl::Any a1 = 1;
+    owl::Any a2 = 1L;
+    owl::Any a3 = 1.0f;
+    owl::Any a4 = 1.0;
+    owl::Any a5 = 1UL;
+    owl::Any a6 = 1ULL;
+    owl::Any a7 = "1";
+    owl::Any a8 = std::string("1");
+    owl::Any a9 = st;
+    owl::Any a10 = &i;
+    
+    owl::Any a02;
+    owl::Any a12;
+    owl::Any a22;
+    owl::Any a32;
+    owl::Any a42;
+    owl::Any a52;
+    owl::Any a62;
+    owl::Any a72;
+    owl::Any a82;
+    owl::Any a92;
+    owl::Any a102;
+    
+    std::stringstream ss;
+    
+    owl::Serializer::serialize(a0, ss);
+    owl::Serializer::serialize(a1, ss);
+    owl::Serializer::serialize(a2, ss);
+    owl::Serializer::serialize(a3, ss);
+    owl::Serializer::serialize(a4, ss);
+    owl::Serializer::serialize(a5, ss);
+    owl::Serializer::serialize(a6, ss);
+    owl::Serializer::serialize(a7, ss);
+    owl::Serializer::serialize(a8, ss);
+    owl::Serializer::serialize(a9, ss);
+    owl::Serializer::serialize(a10, ss);
+    
+    owl::Serializer::deserialize(a02, ss);
+    owl::Serializer::deserialize(a12, ss);
+    owl::Serializer::deserialize(a22, ss);
+    owl::Serializer::deserialize(a32, ss);
+    owl::Serializer::deserialize(a42, ss);
+    owl::Serializer::deserialize(a52, ss);
+    owl::Serializer::deserialize(a62, ss);
+    owl::Serializer::deserialize(a72, ss);
+    owl::Serializer::deserialize(a82, ss);
+    owl::Serializer::deserialize(a92, ss);
+    owl::Serializer::deserialize(a102, ss);
+    
+    EXPECT_TRUE(a02.is_null());
+    EXPECT_TRUE(a12.is<int>());
+    EXPECT_TRUE(a22.is<long>());
+    EXPECT_TRUE(a32.is<float>());
+    EXPECT_TRUE(a42.is<double>());
+    EXPECT_TRUE(a52.is<unsigned long>());
+    EXPECT_TRUE(a62.is<unsigned long long>());
+    EXPECT_TRUE(a72.is<std::string>());
+    EXPECT_TRUE(a82.is<std::string>());
+    EXPECT_TRUE(a92.is_null());
+    EXPECT_TRUE(a102.is_null());
+    
+    EXPECT_EQ(a12.as<int>(), 1);
+    EXPECT_EQ(a22.as<long>(), 1);
+    EXPECT_EQ(a32.as<float>(), 1.0f);
+    EXPECT_EQ(a42.as<double>(), 1.0);
+    EXPECT_EQ(a52.as<unsigned long>(), 1);
+    EXPECT_EQ(a62.as<unsigned long long>(), 1);
+    EXPECT_EQ(a72.as<std::string>(), "1");
+    EXPECT_EQ(a82.as<std::string>(), "1");
+}
+
+TEST(Any, SerializingVector) {
+    std::vector<float> fv, fv2;
+    fv.push_back(1.5);
+    fv.push_back(2.5);
+    fv.push_back(3.5);
+    fv.push_back(4.5);
+    fv.push_back(5.5);
+    
+    owl::Any a1 = fv;
+    owl::Any a2;
+    
+    std::stringstream ss;
+    
+    EXPECT_TRUE(a2.is_null());
+    
+    owl::Serializer::serialize(a1, ss);
+    owl::Serializer::deserialize(a2, ss);
+    
+    EXPECT_FALSE(a2.is_null());
+    EXPECT_TRUE(a2.is<std::vector<float>>());
+    
+    fv2 = a2.as<std::vector<float>>();
+    
+    EXPECT_EQ(fv.size(), fv2.size());
+    for(size_t i = 0; i < fv.size(); ++i) {
+        EXPECT_EQ(fv.at(i), fv2.at(i));
+    }
+    
+    EXPECT_EQ(owl::Serializer::bytes_left(ss), 0);
+}

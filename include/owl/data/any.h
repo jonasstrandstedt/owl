@@ -98,7 +98,24 @@ private:
         Any_long_double                 = 15,
         Any_bool                        = 16,
         Any_std_string                  = 17,
-        Any_Dictionary                  = 18
+        Any_Dictionary                  = 18,
+        Any_vector_char                        = 19,
+        Any_vector_char16_t                    = 20,
+        Any_vector_char32_t                    = 21,
+        Any_vector_wchar_t                     = 22,
+        Any_vector_short                       = 23,
+        Any_vector_int                         = 24,
+        Any_vector_long_int                    = 25,
+        Any_vector_long_long_int               = 26,
+        Any_vector_unsigned_short              = 27,
+        Any_vector_unsigned_int                = 28,
+        Any_vector_unsigned_long_int           = 29,
+        Any_vector_unsigned_long_long_int      = 30,
+        Any_vector_float                       = 31,
+        Any_vector_double                      = 32,
+        Any_vector_long_double                 = 33,
+        Any_vector_std_string                  = 34,
+        Any_vector_Dictionary                  = 35
     };
 
     size_t type() const;

@@ -28,6 +28,32 @@
 
 namespace owl {
 
+Serializer::size_type Serializer::bytes_left(std::istream& src) {
+    size_type position = src.tellg();
+    src.seekg(0, std::ios::end);
+    size_type src_size = src.tellg();
+    src_size -= position;
+    
+    // reset position
+    src.seekg(position, std::ios::beg);
+    
+    return src_size;
+}
+
+void Serializer::deserialize_check(size_t size, std::istream& src) {
+#if !defined(NDEBUG)
+    size_type src_size = bytes_left(src);
+    
+    if(src_size == 0) {
+        throw EmptyStream();
+    }
+    
+    if(src_size < size) {
+        throw InsufficientData();
+    }
+#endif
+}
+
 template<>
 void Serializer::serialize(const std::string& v, std::ostream& out) {
     const size_type length = v.length();
@@ -37,10 +63,15 @@ void Serializer::serialize(const std::string& v, std::ostream& out) {
 
 template<>
 void Serializer::deserialize<std::string>(std::string& v, std::istream& src) {
+    
+    deserialize_check(sizeof(size_type), src);
     size_type length;
     src.read(reinterpret_cast<value_type*>(&length), sizeof(size_type));
+    
+    deserialize_check(length, src);
     std::vector<char> tmp(length);
     src.read(tmp.data(), sizeof(char)*length);
+    
     v = std::string(reinterpret_cast<const char*>(tmp.data()), length);
 }
 
@@ -70,6 +101,8 @@ void Serializer::serialize<Dictionary>(const Dictionary& v, std::ostream& out) {
 
 template<>
 void Serializer::deserialize<Dictionary>(Dictionary& v, std::istream& src) {
+    
+    deserialize_check(sizeof(size_type), src);
     size_type length;
     src.read(reinterpret_cast<value_type*>(&length), sizeof(size_type));
     

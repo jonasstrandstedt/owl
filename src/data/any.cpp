@@ -107,8 +107,26 @@ size_t Any::type() const {
     else if(is<double>())                   return Any_double;
     else if(is<long double>())              return Any_long_double;
     else if(is<bool>())                     return Any_bool;
-    else if (is<std::string>())             return Any_std_string;
-    else if (is<Dictionary>())              return Any_Dictionary;
+    else if(is<std::string>())              return Any_std_string;
+    else if(is<Dictionary>())               return Any_Dictionary;
+    else if(is<std::vector<char> >())                    return Any_vector_char;
+    else if(is<std::vector<char16_t>>())                 return Any_vector_char16_t;
+    else if(is<std::vector<char32_t>>())                 return Any_vector_char32_t;
+    else if(is<std::vector<wchar_t>>())                  return Any_vector_wchar_t;
+    else if(is<std::vector<short>>())                    return Any_vector_short;
+    else if(is<std::vector<int>>())                      return Any_vector_int;
+    else if(is<std::vector<long int>>())                 return Any_vector_long_int;
+    else if(is<std::vector<long long int>>())            return Any_vector_long_long_int;
+    else if(is<std::vector<unsigned short>>())           return Any_vector_unsigned_short;
+    else if(is<std::vector<unsigned int>>())             return Any_vector_unsigned_int;
+    else if(is<std::vector<unsigned long int>>())        return Any_vector_unsigned_long_int;
+    else if(is<std::vector<unsigned long long int>>())   return Any_vector_unsigned_long_long_int;
+    else if(is<std::vector<float>>())                    return Any_vector_float;
+    else if(is<std::vector<double>>())                   return Any_vector_double;
+    else if(is<std::vector<long double>>())              return Any_vector_long_double;
+    else if(is<std::vector<std::string>>())              return Any_vector_std_string;
+    else if(is<std::vector<Dictionary>>())               return Any_vector_Dictionary;
+    
     return Any_unsupported;
 } 
 
@@ -138,6 +156,23 @@ void Any::serialize(const Any& v, std::ostream& out) {
     else if(type == Any_bool)                    serialize<bool>(v, out);
     else if(type == Any_std_string)              serialize<std::string>(v, out);
     else if(type == Any_Dictionary)              serialize<Dictionary>(v, out);
+    else if(type == Any_vector_char)                    serialize<std::vector<char>>(v, out);
+    else if(type == Any_vector_char16_t)                serialize<std::vector<char16_t>>(v, out);
+    else if(type == Any_vector_char32_t)                serialize<std::vector<char32_t>>(v, out);
+    else if(type == Any_vector_wchar_t)                 serialize<std::vector<wchar_t>>(v, out);
+    else if(type == Any_vector_short)                   serialize<std::vector<short>>(v, out);
+    else if(type == Any_vector_int)                     serialize<std::vector<int>>(v, out);
+    else if(type == Any_vector_long_int)                serialize<std::vector<long int>>(v, out);
+    else if(type == Any_vector_long_long_int)           serialize<std::vector<long long int>>(v, out);
+    else if(type == Any_vector_unsigned_short)          serialize<std::vector<unsigned short>>(v, out);
+    else if(type == Any_vector_unsigned_int)            serialize<std::vector<unsigned int>>(v, out);
+    else if(type == Any_vector_unsigned_long_int)       serialize<std::vector<unsigned long int>>(v, out);
+    else if(type == Any_vector_unsigned_long_long_int)  serialize<std::vector<unsigned long long int>>(v, out);
+    else if(type == Any_vector_float)                   serialize<std::vector<float>>(v, out);
+    else if(type == Any_vector_double)                  serialize<std::vector<double>>(v, out);
+    else if(type == Any_vector_long_double)             serialize<std::vector<long double>>(v, out);
+    else if(type == Any_vector_std_string)              serialize<std::vector<std::string>>(v, out);
+    else if(type == Any_vector_Dictionary)              serialize<std::vector<Dictionary>>(v, out);
     
 }
 
@@ -162,6 +197,23 @@ void Any::deserialize(Any& v, std::istream& src) {
     else if(type == Any_bool)                    deserialize<bool>(v, src);
     else if(type == Any_std_string)              deserialize<std::string>(v, src);
     else if(type == Any_Dictionary)              deserialize<Dictionary>(v, src);
+    else if(type == Any_vector_char)                    deserialize<std::vector<char>>(v, src);
+    else if(type == Any_vector_char16_t)                deserialize<std::vector<char16_t>>(v, src);
+    else if(type == Any_vector_char32_t)                deserialize<std::vector<char32_t>>(v, src);
+    else if(type == Any_vector_wchar_t)                 deserialize<std::vector<wchar_t>>(v, src);
+    else if(type == Any_vector_short)                   deserialize<std::vector<short>>(v, src);
+    else if(type == Any_vector_int)                     deserialize<std::vector<int>>(v, src);
+    else if(type == Any_vector_long_int)                deserialize<std::vector<long int>>(v, src);
+    else if(type == Any_vector_long_long_int)           deserialize<std::vector<long long int>>(v, src);
+    else if(type == Any_vector_unsigned_short)          deserialize<std::vector<unsigned short>>(v, src);
+    else if(type == Any_vector_unsigned_int)            deserialize<std::vector<unsigned int>>(v, src);
+    else if(type == Any_vector_unsigned_long_int)       deserialize<std::vector<unsigned long int>>(v, src);
+    else if(type == Any_vector_unsigned_long_long_int)  deserialize<std::vector<unsigned long long int>>(v, src);
+    else if(type == Any_vector_float)                   deserialize<std::vector<float>>(v, src);
+    else if(type == Any_vector_double)                  deserialize<std::vector<double>>(v, src);
+    else if(type == Any_vector_long_double)             deserialize<std::vector<long double>>(v, src);
+    else if(type == Any_vector_std_string)              deserialize<std::vector<std::string>>(v, src);
+    else if(type == Any_vector_Dictionary)              deserialize<std::vector<Dictionary>>(v, src);
     else {
         // Unsupported type
         v = Any();

@@ -22,23 +22,45 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#include <gtest/gtest.h>
+template<typename T> 
+void Serializer::serialize(const T& v, std::ostream& out) {
+    out.write(reinterpret_cast<const value_type*>(&v), sizeof(T));
+}
 
-#include <owl/data/any.h>
-#include <owl/data/buffer.h>
-#include <owl/data/serializer.h>
-#include <owl/filesystem/binaryfile.h>
-#include <owl/data/dictionary.h>
-#include <owl/data/typeinfo.h>
+template<class T> 
+void Serializer::serialize(const std::vector<T>& v, std::ostream& out) {
+    size_type n = v.size();
+    out.write(reinterpret_cast<const value_type*>(&n), sizeof(size_type));
+    if(std::is_pod<T>::value) {
+        out.write(reinterpret_cast<const value_type*>(v.data()), sizeof(T)*n);
+    } else {
+        for(const auto& e: v) {
+            serialize(e, out);
+        }
+    }
+}
 
-#include "test_any.inl"
-#include "test_serializer.inl"
-#include "test_buffer.inl"
-#include "test_binaryfile.inl"
-#include "test_dictionary.inl"
-#include "test_typeinfo.inl"
+template<typename T>
+void Serializer::deserialize(T& v, std::istream& src) {
+    deserialize_check(sizeof(T), src);
+    src.read(reinterpret_cast<value_type*>(&v), sizeof(T));
+}
 
-int main(int argc, char** argv) {
-	testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
+template<class T>
+void Serializer::deserialize(std::vector<T>& v, std::istream& src) {
+    deserialize_check(sizeof(size_type), src);
+    size_type n;
+    src.read(reinterpret_cast<value_type*>(&n), sizeof(size_type));
+    if(std::is_pod<T>::value) {
+        deserialize_check(sizeof(T)*n, src);
+        v.resize(n);
+        src.read(reinterpret_cast<value_type*>(v.data()), sizeof(T)*n);
+    } else {
+        v.reserve(n);
+        for(size_t i = 0; i < n; ++i) {
+            T t;
+            deserialize(t, src);
+            v.emplace_back(t);
+        }
+    }
 }

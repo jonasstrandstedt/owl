@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <exception>
 
 namespace owl {
 
@@ -36,6 +37,16 @@ class Any;
 
 class Serializer {
 public:
+
+    struct SerializerException : std::exception {
+        const char* what() const noexcept {return "SerializerException";}
+    };
+    struct EmptyStream : SerializerException {
+        const char* what() const noexcept {return "EmptyStream";}
+    };
+    struct InsufficientData : SerializerException {
+        const char* what() const noexcept {return "InsufficientData";}
+    };
 
     typedef char value_type;
     typedef size_t size_type;
@@ -49,6 +60,11 @@ public:
     static void deserialize(T& v, std::istream& src);
     template<class T>
     static void deserialize(std::vector<T>& v, std::istream& src);
+    
+    static size_type bytes_left(std::istream& src);
+    
+private:
+    static void deserialize_check(size_t size, std::istream& src);
     
 }; // class Serializer
 
@@ -66,45 +82,7 @@ void Serializer::serialize<Any>(const Any& v, std::ostream& out);
 template<>
 void Serializer::deserialize<Any>(Any& v, std::istream& src);
 
-template<typename T> 
-void Serializer::serialize(const T& v, std::ostream& out) {
-    out.write(reinterpret_cast<const value_type*>(&v), sizeof(T));
-}
-
-template<class T> 
-void Serializer::serialize(const std::vector<T>& v, std::ostream& out) {
-    size_type n = v.size();
-    out.write(reinterpret_cast<const value_type*>(&n), sizeof(size_type));
-    if(std::is_pod<T>::value) {
-        out.write(reinterpret_cast<const value_type*>(v.data()), sizeof(T)*n);
-    } else {
-        for(const auto& e: v) {
-            serialize(e, out);
-        }
-    }
-}
-
-template<typename T>
-void Serializer::deserialize(T& v, std::istream& src) {
-    src.read(reinterpret_cast<value_type*>(&v), sizeof(T));
-}
-
-template<class T>
-void Serializer::deserialize(std::vector<T>& v, std::istream& src) {
-    size_type n;
-    src.read(reinterpret_cast<value_type*>(&n), sizeof(size_type));
-    if(std::is_pod<T>::value) {
-        v.resize(n);
-        src.read(reinterpret_cast<value_type*>(v.data()), sizeof(T)*n);
-    } else {
-        v.reserve(n);
-        for(size_t i = 0; i < n; ++i) {
-            T t;
-            deserialize(t, src);
-            v.emplace_back(t);
-        }
-    }
-}
+#include <owl/data/serializer.inl>
 
 } // namespace owl
 
